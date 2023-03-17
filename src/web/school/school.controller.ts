@@ -74,7 +74,7 @@ export class SchoolController {
   }
 
   @Get('findone/:id')
-  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
   async findOne(@Param('id', new ValidateObjectId()) id: string) {
     return this.schoolService.findOne(id);
   }

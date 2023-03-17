@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './web/users/users.module';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { SchoolModule } from './web/school/school.module';
+import { StudentsModule } from './web/students/students.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { SchoolModule } from './web/school/school.module';
       },
     }),
     SchoolModule,
+    StudentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

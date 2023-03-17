@@ -288,6 +288,7 @@ export class SchoolService {
         { _id: user.id },
         { $set: { deleted: true } },
       );
+      return { message: SUCCESS_MSGS.SCHOOL_DELETED };
     } catch (err) {
       return err;
     }
