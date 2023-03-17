@@ -6,7 +6,7 @@ export type SchoolDocument = HydratedDocument<School>;
 
 @Schema()
 export class School {
-  @Prop({ required: true })
+  @Prop({ required: true, index: true })
   name: string;
 
   @Prop({ required: true, unique: true })
@@ -46,4 +46,6 @@ export class School {
   deleted: boolean;
 }
 
-export const SchoolSchema = SchemaFactory.createForClass(School);
+const SchoolSchema = SchemaFactory.createForClass(School);
+SchoolSchema.index({ name: 'text' });
+export { SchoolSchema };

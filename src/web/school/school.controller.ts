@@ -82,7 +82,7 @@ export class SchoolController {
   @Patch('update')
   @UsePipes(ValidationPipe)
   @UseInterceptors(FileInterceptor('file', SchoolStorage))
-  @UseGuards(RoleGuard([Role.Admin, Role.Reader]))
+  @UseGuards(RoleGuard(Role.School))
   async update(
     @Body() updateSchoolDto: UpdateSchoolDto,
     @Users() user: SchoolDocument,
@@ -92,8 +92,8 @@ export class SchoolController {
   }
 
   @Delete('delete')
-  @UseGuards(RoleGuard([Role.Admin, Role.Reader, Role.School]))
-  async remove(@Users() user: SchoolDocument) {
-    return this.schoolService.remove(user);
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  async remove(@Users() user: SchoolDocument, @Query() schlId: string) {
+    return this.schoolService.remove(user, schlId);
   }
 }

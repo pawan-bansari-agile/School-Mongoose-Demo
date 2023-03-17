@@ -5,13 +5,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
-import { User, UserSchema } from 'src/schemas/user.schema';
 import { JwtHelper } from 'src/utils/utils';
+import { School, SchoolSchema } from 'src/schemas/schools.schema';
 
 @Module({
   imports: [
     PassportModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: School.name, schema: SchoolSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async () => ({

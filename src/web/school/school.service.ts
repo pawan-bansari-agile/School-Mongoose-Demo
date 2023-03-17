@@ -37,11 +37,11 @@ export class SchoolService {
       }
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await hashPassword(password);
+      createSchoolDto.photo = file?.filename;
       const newSchool = new this.schoolModel({
         ...createSchoolDto,
         password: hashedPassword,
       });
-      newSchool.photo = file?.filename;
       await newSchool.save();
       const payload = {
         id: newSchool._id,
@@ -114,7 +114,8 @@ export class SchoolService {
         throw new BadRequestException(ERR_MSGS.EMAIL_NOT_LINKED);
       }
       const token = crypto.randomBytes(20).toString('hex');
-      const link = 'http://' + req.headers.host + '/users/reset?token=' + token;
+      const link =
+        'http://' + req.headers.host + '/school/reset?token=' + token;
       this.mailerService.sendMail({
         to: existingSchool.email,
         subject: 'Forget Password Request!',
@@ -175,18 +176,38 @@ export class SchoolService {
 
   async findAll(query) {
     try {
-      const skip = query.skip || 0;
+      const fieldName = query.fieldName || '';
+      const fieldValue = query.fieldValue || '';
+      const pageNumber = query.pageNumber || 1;
       const limit = query.limit || 10;
-      const keyword: RegExp = query.keyword || '';
-      // const schools = await this.schoolModel.find(
-      //   { deleted: false },
-      //   { password: 0 },
-      // );
-      const schools = await this.schoolModel.aggregate([
-        { $match: { deleted: false } },
-        { $match: { $or: [{ name: keyword }, {}] } },
-      ]);
-      return { message: SUCCESS_MSGS.FIND_ALL_USERS, schools };
+      const keyword = query.keyword || '';
+      const sortBy = query.sortBy || '';
+      const sortOrder = query.sortOrder || '';
+      const pipeline = [];
+      if (keyword) {
+        pipeline.push(
+          { $match: { $text: { $search: keyword } } },
+          { $match: { deleted: false } },
+        );
+      } else {
+        pipeline.push({ $match: { deleted: false } });
+      }
+
+      if (fieldName && fieldValue) {
+        pipeline.push({ $match: { [fieldName]: fieldValue } });
+      }
+      if (sortBy && sortOrder) {
+        pipeline.push({ $sort: { [sortBy]: +sortOrder } });
+      } else if (sortBy) {
+        pipeline.push({ $sort: { [sortBy]: 1 } });
+      }
+      pipeline.push(
+        { $skip: (pageNumber - 1) * limit },
+        { $limit: +limit },
+        { $project: { password: 0 } },
+      );
+      const schools = await this.schoolModel.aggregate(pipeline);
+      return { message: SUCCESS_MSGS.FIND_ALL_SCHOOLS, schools };
     } catch (err) {
       return err;
     }
@@ -248,13 +269,20 @@ export class SchoolService {
     }
   }
 
-  async remove(user: SchoolDocument) {
+  async remove(user: SchoolDocument, schlId: string) {
     try {
-      const existingSchool = await this.schoolModel.findOne({
-        $and: [{ _id: user.id }, { deleted: false }],
-      });
+      let existingSchool = {};
+      if (user.role == 'School') {
+        existingSchool = await this.schoolModel.findOne({
+          $and: [{ _id: user.id }, { deleted: false }],
+        });
+      } else if (user.role == 'Admin') {
+        existingSchool = await this.schoolModel.findOne({
+          $and: [{ _id: schlId }, { deleted: false }],
+        });
+      }
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }
       await this.schoolModel.findOneAndUpdate(
         { _id: user.id },

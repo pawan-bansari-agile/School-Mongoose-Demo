@@ -47,6 +47,7 @@ export const SUCCESS_MSGS = {
   USER_CREATED: 'User created!',
   LOGGED_IN: 'User logged in successfully!',
   FIND_ALL_USERS: 'Found all users!',
+  FIND_ALL_SCHOOLS: 'Found all schools!',
   FOUND_ONE_USER: 'Found one user!',
   FOUND_ONE_SCHOOL: 'Found one school!',
   UPDATED_USER: 'User updated successfully!',

@@ -29,9 +29,9 @@ export class CreateSchoolDto {
   @IsString()
   photo: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  zipCode: number;
+  zipCode: string;
 
   @IsString()
   @IsNotEmpty()
