@@ -1,12 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import {
-  IsDate,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 import { phoneRegex } from 'src/utils/consts';
 // import * as DoubleType from '@mongoosejs/double';
 
