@@ -11,6 +11,10 @@ export default Role;
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
 
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
+export const phoneRegex: RegExp =
+  /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/;
+
 export const ERR_MSGS = {
   USER_NOT_FOUND: 'User not found!',
   EMAIL_ALREADY_USED:
@@ -23,22 +27,28 @@ export const ERR_MSGS = {
   LINK_EXPIRED: 'Password reset token is invalid or has expired!',
   SESSION_EXPIRED: 'Session expired! Login again!',
   SCHOOL_NOT_FOUND: 'School not found!',
+  STUDENT_NOT_FOUND: 'Student details not found!',
+  NO_CHANGE_DETECTED: 'No change detected!',
 };
 
 export const SUCCESS_MSGS = {
   USER_DELETED: 'User Deleted!',
   SCHOOL_DELETED: 'School deleted!',
+  STUDENT_DELETED: 'Student deleted!',
   STUDENT_CREATED: 'Student created!',
   USER_CREATED: 'User created!',
   LOGGED_IN: 'User logged in successfully!',
   FIND_ALL_USERS: 'Found all users!',
   FIND_ALL_SCHOOLS: 'Found all schools!',
+  FIND_ALL_STUDENTS: 'Found all students!',
   FOUND_ONE_USER: 'Found one user!',
   FOUND_ONE_SCHOOL: 'Found one school!',
+  FOUND_ONE_STUDENT: 'Found one student!',
   UPDATED_USER: 'User updated successfully!',
   UPDATED_SCHOOL: 'School updated successfully!',
   MAIL_SENT: 'Please check your email for details to reset password!',
   PWD_CHANGED: 'Password changed successfully!',
+  STATUS_CHANGED: 'Status changed!',
 };
 
 export const SchoolStorage = {

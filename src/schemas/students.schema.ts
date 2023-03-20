@@ -34,4 +34,6 @@ export class Student {
   school: School;
 }
 
-export const StudentSchema = SchemaFactory.createForClass(Student);
+const StudentSchema = SchemaFactory.createForClass(Student);
+StudentSchema.index({ name: 'text' });
+export { StudentSchema };

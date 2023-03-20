@@ -5,22 +5,26 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
+import { phoneRegex } from 'src/utils/consts';
+// import * as DoubleType from '@mongoosejs/double';
 
 export class CreateStudentDto {
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
+  @Matches(phoneRegex, { message: 'does not match!' })
   parentNumber: number;
 
   @IsString()
   @IsNotEmpty()
   address: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
   std: number;
 
@@ -28,7 +32,7 @@ export class CreateStudentDto {
   @IsOptional()
   photo: string;
 
-  @IsDate()
+  @IsString()
   @IsNotEmpty()
   dob: Date;
 }

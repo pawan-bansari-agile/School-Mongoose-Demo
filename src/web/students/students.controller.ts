@@ -11,6 +11,7 @@ import {
   UsePipes,
   ValidationPipe,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import {
@@ -22,6 +23,7 @@ import Role, { StudentStorage } from 'src/utils/consts';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Users } from 'src/decorators/user.decorator';
 import { SchoolDocument } from 'src/schemas/schools.schema';
+import { ValidateObjectId } from 'src/utils/utils';
 
 @Controller('students')
 export class StudentsController {
@@ -39,23 +41,49 @@ export class StudentsController {
     return this.studentsService.create(createStudentDto, user, file);
   }
 
-  @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  @Get('findAll')
+  @UseGuards(RoleGuard([Role.School, Role.Admin]))
+  async findAll(@Users() user, @Query() query) {
+    return this.studentsService.findAll(user, query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentsService.findOne(+id);
+  @Get('findOne')
+  @UseGuards(RoleGuard([Role.School, Role.Admin]))
+  async findOne(@Users() user, @Query() query) {
+    return this.studentsService.findOne(user, query);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-    return this.studentsService.update(+id, updateStudentDto);
+  @Patch('update/:id')
+  @UseInterceptors(FileInterceptor('file', StudentStorage))
+  @UseGuards(RoleGuard(Role.School))
+  async update(
+    @Param('id') id: string,
+    @Body() updateStudentDto: UpdateStudentDto,
+    @Users() user,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.studentsService.update(id, updateStudentDto, user, file);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.studentsService.remove(+id);
+  @Patch('update/isActive/:id')
+  @UseGuards(RoleGuard(Role.School))
+  async isActive(
+    @Param('id', new ValidateObjectId()) id: string,
+    @Users() user,
+    @Body() body: boolean,
+  ) {
+    return this.studentsService.isActive(id, user, body);
+  }
+
+  @Delete('delete/:id')
+  @UseGuards(RoleGuard(Role.School))
+  async remove(@Users() user: SchoolDocument, @Param() id: string) {
+    return this.studentsService.remove(user, id);
+  }
+
+  @Get('totalCount')
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  async totalCount(@Users() user, @Query() query) {
+    return this.studentsService.totalCount(user, query);
   }
 }

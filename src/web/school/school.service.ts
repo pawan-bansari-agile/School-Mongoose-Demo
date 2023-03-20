@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { School, SchoolDocument } from 'src/schemas/schools.schema';
-import { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
+import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
 import { hashPassword, JwtHelper, verifyPass } from 'src/utils/utils';
 import {
   CreateSchoolDto,
@@ -207,6 +207,9 @@ export class SchoolService {
         { $project: { password: 0 } },
       );
       const schools = await this.schoolModel.aggregate(pipeline);
+      if (!schools) {
+        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+      }
       return { message: SUCCESS_MSGS.FIND_ALL_SCHOOLS, schools };
     } catch (err) {
       return err;
@@ -219,6 +222,9 @@ export class SchoolService {
         { $and: [{ _id: id }, { deleted: false }] },
         { password: 0 },
       );
+      if (!existingSchool) {
+        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+      }
       return { existingSchool, message: SUCCESS_MSGS.FOUND_ONE_SCHOOL };
     } catch (err) {
       return err;
@@ -272,11 +278,11 @@ export class SchoolService {
   async remove(user: SchoolDocument, schlId: string) {
     try {
       let existingSchool = {};
-      if (user.role == 'School') {
+      if (user.role == Role.School) {
         existingSchool = await this.schoolModel.findOne({
           $and: [{ _id: user.id }, { deleted: false }],
         });
-      } else if (user.role == 'Admin') {
+      } else if (user.role == Role.Admin) {
         existingSchool = await this.schoolModel.findOne({
           $and: [{ _id: schlId }, { deleted: false }],
         });
