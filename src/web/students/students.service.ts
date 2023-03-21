@@ -41,13 +41,14 @@ export class StudentsService {
       const pageNumber = query.pageNumber || 1;
       const limit = query.limit || 10;
       const keyword = query.keyword || '';
+      const regex = new RegExp(keyword, 'i');
       const sortBy = query.sortBy || '';
       const sortOrder = query.sortOrder || '';
       const pipeline = [];
       if (user.role == Role.Admin) {
         if (keyword) {
           pipeline.push(
-            { $match: { $text: { $search: keyword } } },
+            { $match: { name: { $regex: regex } } },
             { $match: { deleted: false } },
           );
         } else {
@@ -56,7 +57,7 @@ export class StudentsService {
       } else if (user.role == Role.School) {
         if (keyword) {
           pipeline.push(
-            { $match: { $text: { $search: keyword } } },
+            { $match: { name: { $regex: keyword } } },
             { $match: { deleted: false } },
             { $match: { school: new mongoose.Types.ObjectId(user.id) } },
           );
@@ -90,13 +91,14 @@ export class StudentsService {
   async findOne(user, query) {
     try {
       const name = query.name || '';
+      const regex = new RegExp(name, 'i');
       const id = query.id || '';
       const pipeline = [];
       if (user.role == Role.Admin) {
         if (name) {
           pipeline.push(
             {
-              $match: { $text: { $search: name } },
+              $match: { name: { $regex: regex } },
             },
             { $match: { deleted: false } },
           );
@@ -110,7 +112,7 @@ export class StudentsService {
         if (name) {
           pipeline.push(
             {
-              $match: { $text: { $search: name } },
+              $match: { name: { $regex: regex } },
             },
             { $match: { deleted: false } },
             { $match: { school: new mongoose.Types.ObjectId(user.id) } },
@@ -229,7 +231,7 @@ export class StudentsService {
       pipeline.push({ $match: { deleted: false } });
       if (user.role == Role.Admin) {
         if (std) {
-          pipeline.push({ $match: { std: std } });
+          pipeline.push({ $match: { std: +std } });
         } else if (school) {
           pipeline.push({ $match: { school: school } });
         }
@@ -237,7 +239,7 @@ export class StudentsService {
         if (std) {
           pipeline.push(
             { $match: { school: new mongoose.Types.ObjectId(user.id) } },
-            { $match: { std: std } },
+            { $match: { std: +std } },
           );
         } else {
           pipeline.push({

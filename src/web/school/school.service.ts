@@ -181,12 +181,13 @@ export class SchoolService {
       const pageNumber = query.pageNumber || 1;
       const limit = query.limit || 10;
       const keyword = query.keyword || '';
+      const regex = new RegExp(keyword, 'i');
       const sortBy = query.sortBy || '';
       const sortOrder = query.sortOrder || '';
       const pipeline = [];
       if (keyword) {
         pipeline.push(
-          { $match: { $text: { $search: keyword } } },
+          { $match: { name: { $regex: regex } } },
           { $match: { deleted: false } },
         );
       } else {
