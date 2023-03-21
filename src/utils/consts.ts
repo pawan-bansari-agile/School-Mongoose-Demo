@@ -1,4 +1,6 @@
 import { diskStorage } from 'multer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 enum Role {
   Reader = 'Reader',
@@ -88,3 +90,8 @@ export const StudentStorage = {
     cb(null, true);
   },
 };
+
+export const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' },
+);

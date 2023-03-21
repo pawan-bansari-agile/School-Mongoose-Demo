@@ -9,9 +9,13 @@ import { UsersModule } from './web/users/users.module';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { SchoolModule } from './web/school/school.module';
 import { StudentsModule } from './web/students/students.module';
+import { MorganModule, MorganInterceptor } from 'nest-morgan';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { accessLogStream } from './utils/consts';
 
 @Module({
   imports: [
+    MorganModule,
     MongooseModule.forRoot('mongodb://localhost/school'),
     UsersModule,
     ConfigModule.forRoot({ isGlobal: true }),
@@ -38,6 +42,12 @@ import { StudentsModule } from './web/students/students.module';
     StudentsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MorganInterceptor('combined', { stream: accessLogStream }),
+    },
+  ],
 })
 export class AppModule {}

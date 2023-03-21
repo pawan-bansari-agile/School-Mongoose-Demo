@@ -30,6 +30,7 @@
     "@nestjs/mongoose": "^9.2.1",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.3.10",
+    "@types/morgan": "^1.9.4",
     "@types/passport": "^1.0.12",
     "@types/passport-jwt": "^3.0.8",
     "bcrypt": "^5.1.0",
@@ -37,6 +38,8 @@
     "class-validator": "^0.14.0",
     "handlebars": "^4.7.7",
     "mongoose": "^6.10.3",
+    "morgan": "^1.10.0",
+    "nest-morgan": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
