@@ -6,9 +6,11 @@ import { Student, StudentDocument } from 'src/schemas/students.schema';
 import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
 import {
   CreateStudentDto,
+  UpdateStatusDto,
   UpdateStudentDto,
 } from '../../dto/create-student.dto';
 import * as fs from 'fs';
+import { globalResponse, responseMap } from 'src/generics/genericResponse';
 
 @Injectable()
 export class StudentsService {
@@ -20,7 +22,7 @@ export class StudentsService {
     createStudentDto: CreateStudentDto,
     user: SchoolDocument,
     file: Express.Multer.File,
-  ) {
+  ): globalResponse {
     try {
       if (file) {
         createStudentDto.photo = file.filename;
@@ -28,13 +30,13 @@ export class StudentsService {
       const newStudent = new this.studModel(createStudentDto);
       newStudent.school = user.id;
       await newStudent.save();
-      return { message: SUCCESS_MSGS.STUDENT_CREATED };
+      return responseMap({ newStudent }, SUCCESS_MSGS.STUDENT_CREATED);
     } catch (err) {
       return err;
     }
   }
 
-  async findAll(user, query) {
+  async findAll(user, query): globalResponse {
     try {
       const fieldName = query.fieldName || '';
       const fieldValue = query.fieldValue || '';
@@ -82,13 +84,13 @@ export class StudentsService {
         { $project: { password: 0 } },
       );
       const students = await this.studModel.aggregate(pipeline);
-      return { message: SUCCESS_MSGS.FIND_ALL_STUDENTS, students };
+      return responseMap(students, SUCCESS_MSGS.FIND_ALL_STUDENTS);
     } catch (err) {
       return err;
     }
   }
 
-  async findOne(user, query) {
+  async findOne(user, query): globalResponse {
     try {
       const name = query.name || '';
       const regex = new RegExp(name, 'i');
@@ -129,7 +131,7 @@ export class StudentsService {
       if (!existingStud) {
         throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
       }
-      return { message: SUCCESS_MSGS.FOUND_ONE_STUDENT, existingStud };
+      return responseMap(existingStud, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     } catch (err) {
       return err;
     }
@@ -138,7 +140,7 @@ export class StudentsService {
   async update(
     id: string,
     updateStudentDto: UpdateStudentDto,
-    user,
+    user: SchoolDocument,
     file: Express.Multer.File,
   ) {
     try {
@@ -178,7 +180,11 @@ export class StudentsService {
     }
   }
 
-  async isActive(id: string, user: SchoolDocument, body) {
+  async isActive(
+    id: string,
+    user: SchoolDocument,
+    body: UpdateStatusDto,
+  ): globalResponse {
     try {
       const status: boolean = body.status || false;
       const existingStud = await this.studModel.findOne({
@@ -195,13 +201,13 @@ export class StudentsService {
         { $set: { status: status } },
         { new: true },
       );
-      return { message: SUCCESS_MSGS.STATUS_CHANGED, updatedDetails };
+      return responseMap({ updatedDetails }, SUCCESS_MSGS.STATUS_CHANGED);
     } catch (err) {
       return err;
     }
   }
 
-  async remove(user: SchoolDocument, id: string) {
+  async remove(user: SchoolDocument, id: string): globalResponse {
     try {
       const existingStud = await this.studModel.findOne({
         $and: [
@@ -217,13 +223,13 @@ export class StudentsService {
         { _id: new mongoose.Types.ObjectId(id) },
         { $set: { deleted: true } },
       );
-      return { message: SUCCESS_MSGS.STUDENT_DELETED };
+      return responseMap({}, SUCCESS_MSGS.STUDENT_DELETED);
     } catch (err) {
       return err;
     }
   }
 
-  async totalCount(user, query) {
+  async totalCount(user, query): globalResponse {
     try {
       const std = query.std || '';
       const school = query.school || '';
@@ -254,8 +260,8 @@ export class StudentsService {
         },
       });
       const totalCount = await this.studModel.aggregate(pipeline);
-
-      return totalCount[0].count;
+      const count = totalCount[0].count;
+      return responseMap({}, count);
     } catch (err) {
       return err;
     }

@@ -17,6 +17,7 @@ import {
   UpdateUserDto,
 } from '../../dto/create-user.dto';
 import * as crypto from 'crypto';
+import { globalResponse, responseMap } from 'src/generics/genericResponse';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +27,7 @@ export class UsersService {
     private readonly jwtHelper: JwtHelper,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): globalResponse {
     try {
       const existingUser = await this.userModel.findOne({
         email: createUserDto.email,
@@ -60,13 +61,13 @@ export class UsersService {
           default: 'Pawan',
         },
       });
-      return { access_token, user };
+      return responseMap({ access_token, user }, SUCCESS_MSGS.USER_CREATED);
     } catch (err) {
       return err;
     }
   }
 
-  async login(loginDetails: LoginUserDto) {
+  async login(loginDetails: LoginUserDto): globalResponse {
     try {
       const existingUser = await this.userModel.findOne({
         $and: [
@@ -90,13 +91,16 @@ export class UsersService {
         role: existingUser.role,
       };
       const access_token = await this.jwtHelper.sign(payload);
-      return { access_token, existingUser };
+      return responseMap(
+        { access_token, existingUser },
+        SUCCESS_MSGS.LOGGED_IN,
+      );
     } catch (err) {
       return err;
     }
   }
 
-  async forget(forgetPassDetails: ForgetPassDto, req) {
+  async forget(forgetPassDetails: ForgetPassDto, req): globalResponse {
     try {
       const existingUser = await this.userModel.findOne({
         $and: [
@@ -128,7 +132,7 @@ export class UsersService {
         Date.now() + 600000,
       ).toUTCString();
       await existingUser.save();
-      return SUCCESS_MSGS.MAIL_SENT;
+      return responseMap({}, SUCCESS_MSGS.MAIL_SENT);
     } catch (err) {
       return err;
     }
@@ -138,7 +142,7 @@ export class UsersService {
     resetPassDetails: ResetPassDto,
     user: UserDocument,
     token: string,
-  ) {
+  ): globalResponse {
     try {
       let existingUser: UserDocument;
       if (!token) {
@@ -165,37 +169,40 @@ export class UsersService {
       existingUser.forgetPwdToken = null;
       existingUser.forgetPwdExpires = null;
       await existingUser.save();
-      return SUCCESS_MSGS.PWD_CHANGED;
+      return responseMap({}, SUCCESS_MSGS.PWD_CHANGED);
     } catch (err) {
       return err;
     }
   }
 
-  async findAll() {
+  async findAll(): globalResponse {
     try {
       const users = await this.userModel.find(
         { deleted: false },
         { password: 0 },
       );
-      return { message: SUCCESS_MSGS.FIND_ALL_USERS, users };
+      return responseMap(users, SUCCESS_MSGS.FIND_ALL_USERS);
     } catch (err) {
       return err;
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): globalResponse {
     try {
       const existingUser = await this.userModel.findOne(
         { $and: [{ _id: id }, { deleted: false }] },
         { password: 0 },
       );
-      return { existingUser, message: SUCCESS_MSGS.FOUND_ONE_USER };
+      return responseMap({ existingUser }, SUCCESS_MSGS.FOUND_ONE_USER);
     } catch (err) {
       return err;
     }
   }
 
-  async update(updateUserDto: UpdateUserDto, user: UserDocument) {
+  async update(
+    updateUserDto: UpdateUserDto,
+    user: UserDocument,
+  ): globalResponse {
     try {
       const existingUser = await this.userModel.findOne({
         $and: [{ _id: user.id }, { deleted: false }],
@@ -213,13 +220,13 @@ export class UsersService {
         },
         { projection: { password: 0 }, new: true },
       );
-      return { updatedDetails, message: SUCCESS_MSGS.UPDATED_USER };
+      return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_USER);
     } catch (err) {
       return err;
     }
   }
 
-  async remove(user: UserDocument) {
+  async remove(user: UserDocument): globalResponse {
     try {
       const existingUser = await this.userModel.findOne({
         $and: [{ _id: user.id }, { deleted: false }],
@@ -231,6 +238,7 @@ export class UsersService {
         { _id: user.id },
         { $set: { deleted: true } },
       );
+      return responseMap({}, SUCCESS_MSGS.USER_DELETED);
     } catch (err) {
       return err;
     }

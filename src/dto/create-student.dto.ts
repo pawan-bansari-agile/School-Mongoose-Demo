@@ -1,5 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { phoneRegex } from 'src/utils/consts';
 // import * as DoubleType from '@mongoosejs/double';
 
@@ -31,3 +37,8 @@ export class CreateStudentDto {
 }
 
 export class UpdateStudentDto extends PartialType(CreateStudentDto) {}
+
+export class UpdateStatusDto {
+  @IsBoolean()
+  status: boolean;
+}

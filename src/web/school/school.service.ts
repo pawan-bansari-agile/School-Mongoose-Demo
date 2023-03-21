@@ -18,6 +18,7 @@ import {
 } from '../../dto/create-school.dto';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import { globalResponse, responseMap } from 'src/generics/genericResponse';
 
 @Injectable()
 export class SchoolService {
@@ -27,7 +28,10 @@ export class SchoolService {
     private readonly jwtHelper: JwtHelper,
   ) {}
 
-  async create(createSchoolDto: CreateSchoolDto, file: Express.Multer.File) {
+  async create(
+    createSchoolDto: CreateSchoolDto,
+    file: Express.Multer.File,
+  ): globalResponse {
     try {
       const existingSchool = await this.schoolModel.findOne({
         email: createSchoolDto.email,
@@ -62,13 +66,13 @@ export class SchoolService {
           default: 'Pawan',
         },
       });
-      return { access_token, user };
+      return responseMap({ access_token, user }, SUCCESS_MSGS.SCHOOL_CREATED);
     } catch (err) {
       return err;
     }
   }
 
-  async login(loginDetails: LoginSchoolDto) {
+  async login(loginDetails: LoginSchoolDto): globalResponse {
     try {
       const existingSchool = await this.schoolModel.findOne({
         $and: [
@@ -92,13 +96,16 @@ export class SchoolService {
         role: existingSchool.role,
       };
       const access_token = await this.jwtHelper.sign(payload);
-      return { access_token, existingSchool };
+      return responseMap(
+        { access_token, existingSchool },
+        SUCCESS_MSGS.SCHL_LOGGED_IN,
+      );
     } catch (err) {
       return err;
     }
   }
 
-  async forget(forgetPassDetails: ForgetSchoolPassDto, req) {
+  async forget(forgetPassDetails: ForgetSchoolPassDto, req): globalResponse {
     try {
       const existingSchool = await this.schoolModel.findOne({
         $and: [
@@ -131,7 +138,7 @@ export class SchoolService {
         Date.now() + 600000,
       ).toUTCString();
       await existingSchool.save();
-      return SUCCESS_MSGS.MAIL_SENT;
+      return responseMap({}, SUCCESS_MSGS.MAIL_SENT);
     } catch (err) {
       return err;
     }
@@ -141,7 +148,7 @@ export class SchoolService {
     resetPassDetails: ResetSchoolPassDto,
     user: SchoolDocument,
     token: string,
-  ) {
+  ): globalResponse {
     try {
       let existingSchool: SchoolDocument;
       if (!token) {
@@ -168,13 +175,13 @@ export class SchoolService {
       existingSchool.forgetPwdToken = null;
       existingSchool.forgetPwdExpires = null;
       await existingSchool.save();
-      return SUCCESS_MSGS.PWD_CHANGED;
+      return responseMap({}, SUCCESS_MSGS.PWD_CHANGED);
     } catch (err) {
       return err;
     }
   }
 
-  async findAll(query) {
+  async findAll(query): globalResponse {
     try {
       const fieldName = query.fieldName || '';
       const fieldValue = query.fieldValue || '';
@@ -211,13 +218,13 @@ export class SchoolService {
       if (!schools) {
         throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }
-      return { message: SUCCESS_MSGS.FIND_ALL_SCHOOLS, schools };
+      return responseMap(schools, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
     } catch (err) {
       return err;
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): globalResponse {
     try {
       const existingSchool = await this.schoolModel.findOne(
         { $and: [{ _id: id }, { deleted: false }] },
@@ -226,7 +233,7 @@ export class SchoolService {
       if (!existingSchool) {
         throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }
-      return { existingSchool, message: SUCCESS_MSGS.FOUND_ONE_SCHOOL };
+      return responseMap({ existingSchool }, SUCCESS_MSGS.FOUND_ONE_SCHOOL);
     } catch (err) {
       return err;
     }
@@ -236,7 +243,7 @@ export class SchoolService {
     updateUserDto: UpdateSchoolDto,
     user: SchoolDocument,
     file: Express.Multer.File,
-  ) {
+  ): globalResponse {
     try {
       const existingSchool = await this.schoolModel.findOne({
         $and: [{ _id: user.id }, { deleted: false }],
@@ -270,13 +277,13 @@ export class SchoolService {
             }
           })
         : null;
-      return { updatedDetails, message: SUCCESS_MSGS.UPDATED_SCHOOL };
+      return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_SCHOOL);
     } catch (err) {
       return err;
     }
   }
 
-  async remove(user: SchoolDocument, schlId: string) {
+  async remove(user: SchoolDocument, schlId: string): globalResponse {
     try {
       let existingSchool = {};
       if (user.role == Role.School) {
@@ -295,7 +302,7 @@ export class SchoolService {
         { _id: user.id },
         { $set: { deleted: true } },
       );
-      return { message: SUCCESS_MSGS.SCHOOL_DELETED };
+      return responseMap({}, SUCCESS_MSGS.SCHOOL_DELETED);
     } catch (err) {
       return err;
     }
