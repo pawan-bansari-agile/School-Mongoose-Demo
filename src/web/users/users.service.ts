@@ -36,6 +36,8 @@ export class UsersService {
         throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
       }
       const password = Math.random().toString(36).slice(-8);
+      console.log('password', password);
+
       const hashedPassword = await hashPassword(password);
       const newUser = new this.userModel({
         ...createUserDto,
@@ -69,7 +71,7 @@ export class UsersService {
 
   async login(loginDetails: LoginUserDto): globalResponse {
     try {
-      const existingUser = await this.userModel.findOne({
+      const user = await this.userModel.findOne({
         $and: [
           {
             email: loginDetails.email,
@@ -79,22 +81,19 @@ export class UsersService {
           },
         ],
       });
-      if (!existingUser) {
+      if (!user) {
         throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
       }
-      if (!(await verifyPass(loginDetails.password, existingUser.password))) {
+      if (!(await verifyPass(loginDetails.password, user.password))) {
         throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
       }
       const payload = {
-        id: existingUser._id,
-        email: existingUser.email,
-        role: existingUser.role,
+        id: user._id,
+        email: user.email,
+        role: user.role,
       };
       const access_token = await this.jwtHelper.sign(payload);
-      return responseMap(
-        { access_token, existingUser },
-        SUCCESS_MSGS.LOGGED_IN,
-      );
+      return responseMap({ access_token, user }, SUCCESS_MSGS.LOGGED_IN);
     } catch (err) {
       return err;
     }
