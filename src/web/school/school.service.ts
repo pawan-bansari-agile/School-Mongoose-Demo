@@ -74,7 +74,7 @@ export class SchoolService {
 
   async login(loginDetails: LoginSchoolDto): globalResponse {
     try {
-      const existingSchool = await this.schoolModel.findOne({
+      const user = await this.schoolModel.findOne({
         $and: [
           {
             email: loginDetails.email,
@@ -84,22 +84,19 @@ export class SchoolService {
           },
         ],
       });
-      if (!existingSchool) {
+      if (!user) {
         throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }
-      if (!(await verifyPass(loginDetails.password, existingSchool.password))) {
+      if (!(await verifyPass(loginDetails.password, user.password))) {
         throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
       }
       const payload = {
-        id: existingSchool._id,
-        email: existingSchool.email,
-        role: existingSchool.role,
+        id: user._id,
+        email: user.email,
+        role: user.role,
       };
       const access_token = await this.jwtHelper.sign(payload);
-      return responseMap(
-        { access_token, existingSchool },
-        SUCCESS_MSGS.SCHL_LOGGED_IN,
-      );
+      return responseMap({ access_token, user }, SUCCESS_MSGS.SCHL_LOGGED_IN);
     } catch (err) {
       return err;
     }
