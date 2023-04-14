@@ -14,9 +14,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
+    // console.log('request', req);
 
-    const gettingAssignedToken = req.rawHeaders[1].split(' ');
-    const assignedToken = gettingAssignedToken[1];
+    const gettingAssignedToken = req.rawHeaders[9];
+    const assignedToken = gettingAssignedToken;
 
     const decoded = this.jwtService.decode(assignedToken);
 

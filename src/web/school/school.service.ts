@@ -236,6 +236,26 @@ export class SchoolService {
     }
   }
 
+  async findByName(keyword: string) {
+    const regex = new RegExp(keyword, 'i');
+    const pipeline = [];
+    if (keyword) {
+      pipeline.push(
+        { $match: { name: { $regex: regex } } },
+        { $match: { deleted: false } },
+      );
+    } else {
+      pipeline.push({ $match: { deleted: false } });
+    }
+    const school = await this.schoolModel.aggregate(pipeline);
+    console.log('school from helper function', school);
+
+    if (!school) {
+      throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+    }
+    return school;
+  }
+
   async update(
     updateUserDto: UpdateSchoolDto,
     user: SchoolDocument,
