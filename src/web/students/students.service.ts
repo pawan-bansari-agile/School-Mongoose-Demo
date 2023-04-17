@@ -133,7 +133,7 @@ export class StudentsService {
       if (!existingStud) {
         throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
       }
-      return responseMap(existingStud, SUCCESS_MSGS.FOUND_ONE_STUDENT);
+      return responseMap({ existingStud }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     } catch (err) {
       return err;
     }
@@ -172,7 +172,6 @@ export class StudentsService {
       existingStud.photo
         ? fs.unlink(`${file.destination}/${existingStud.photo}`, (err) => {
             if (err) {
-              console.log('File error', err);
             }
           })
         : null;
@@ -234,38 +233,13 @@ export class StudentsService {
   async totalCount(user, query): globalResponse {
     try {
       const std = query.std || '';
-      console.log('std', std, typeof std);
 
       const school = query.school || '';
-      console.log('std', school, typeof school);
 
       const pipeline = [];
-      // if (school) {
-      //   existingSchool = await this.schoolService.findByName(school);
-      //   console.log('existingSchool', existingSchool);
-      // }
 
       pipeline.push({ $match: { deleted: false } });
       if (user.role == Role.Admin) {
-        // if (std && school) {
-        //   existingSchool = await this.schoolService.findByName(school);
-        //   pipeline.push({ $match: { std: +std } });
-        //   pipeline.push({
-        //     $match: { school: existingSchool[0]._id },
-        //   });
-        // }
-        // if (std) {
-        //   pipeline.push({ $match: { std: +std } });
-        //   console.log('pipeline', pipeline);
-        // } else if (school) {
-        //   existingSchool = await this.schoolService.findByName(school);
-        //   console.log('existingSchool', existingSchool);
-
-        //   pipeline.push({
-        //     $match: { school: existingSchool[0]._id },
-        //   });
-        //   console.log('pipeline', pipeline);
-        // }
         if (std || school) {
           if (std) {
             pipeline.push({ $match: { std: +std } });
@@ -275,7 +249,6 @@ export class StudentsService {
 
             pipeline.push({ $match: { school: existingSchool[0]._id } });
           }
-          console.log('pipeline', pipeline);
         }
       } else if (user.role == Role.School) {
         if (std) {
@@ -283,12 +256,10 @@ export class StudentsService {
             { $match: { school: new mongoose.Types.ObjectId(user.id) } },
             { $match: { std: +std } },
           );
-          console.log('pipeline', pipeline);
         } else {
           pipeline.push({
             $match: { school: new mongoose.Types.ObjectId(user.id) },
           });
-          console.log('pipeline', pipeline);
         }
       }
       pipeline.push({
@@ -297,13 +268,10 @@ export class StudentsService {
           count: { $sum: 1 },
         },
       });
-      console.log('pipeline', pipeline);
 
       const totalCount = await this.studModel.aggregate(pipeline);
-      console.log('totalCount', totalCount);
 
       const count = totalCount[0].count;
-      console.log('count', count, typeof count);
 
       return responseMap({ count });
     } catch (err) {

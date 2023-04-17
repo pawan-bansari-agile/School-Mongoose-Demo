@@ -248,7 +248,6 @@ export class SchoolService {
       pipeline.push({ $match: { deleted: false } });
     }
     const school = await this.schoolModel.aggregate(pipeline);
-    console.log('school from helper function', school);
 
     if (!school) {
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
@@ -290,7 +289,6 @@ export class SchoolService {
       existingSchool.photo
         ? fs.unlink(`${file.destination}/${existingSchool.photo}`, (err) => {
             if (err) {
-              console.log('File error', err);
             }
           })
         : null;

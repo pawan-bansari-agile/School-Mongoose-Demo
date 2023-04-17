@@ -36,7 +36,6 @@ export class UsersService {
         throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
       }
       const password = Math.random().toString(36).slice(-8);
-      console.log('password', password);
 
       const hashedPassword = await hashPassword(password);
       const newUser = new this.userModel({
