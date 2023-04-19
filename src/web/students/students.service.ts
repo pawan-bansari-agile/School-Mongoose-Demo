@@ -72,20 +72,53 @@ export class StudentsService {
           );
         }
       }
+      // if (fieldName && fieldValue) {
+      //   if (fieldName == 'school') {
+      //     const newFieldValue = new mongoose.Types.ObjectId(fieldValue);
+
+      //     pipeline.push({ $match: { [fieldName]: newFieldValue } });
+      //   } else if (fieldName == 'std') {
+      //     pipeline.push({ $match: { [fieldName]: +fieldValue } });
+      //   }
+      // }
+      // if (fieldName && fieldValue) {
+      //   pipeline.push({ $match: { [fieldName]: fieldValue } });
+      // }
       if (fieldName && fieldValue) {
-        pipeline.push({ $match: { [fieldName]: fieldValue } });
+        if (fieldName === 'school') {
+          try {
+            const schoolId = new mongoose.Types.ObjectId(fieldValue);
+            pipeline.push({ $match: { [fieldName]: schoolId } });
+          } catch (err) {
+            console.error('Invalid ObjectId for school field');
+          }
+        } else if (fieldName === 'std') {
+          pipeline.push({ $match: { [fieldName]: +fieldValue } });
+        }
       }
-      if (sortBy && sortOrder) {
-        pipeline.push({ $sort: { [sortBy]: +sortOrder } });
-      } else if (sortBy) {
-        pipeline.push({ $sort: { [sortBy]: 1 } });
+
+      if (sortBy || sortOrder) {
+        if (sortBy && sortOrder) {
+          pipeline.push({ $sort: { [sortBy]: +sortOrder } });
+        } else if (sortBy) {
+          pipeline.push({ $sort: { [sortBy]: 1 } });
+        } else if (sortOrder) {
+          pipeline.push({ $sort: { std: +sortOrder } });
+        }
       }
       pipeline.push(
         { $skip: (pageNumber - 1) * limit },
         { $limit: +limit },
         { $project: { password: 0 } },
       );
+      console.log('pipeline', pipeline);
+
       const students = await this.studModel.aggregate(pipeline);
+      console.log('studentss', students);
+      if (!students) {
+        console.log('inside truthyness check');
+      }
+
       return responseMap(students, SUCCESS_MSGS.FIND_ALL_STUDENTS);
     } catch (err) {
       return err;

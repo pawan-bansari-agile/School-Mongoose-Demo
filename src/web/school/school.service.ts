@@ -201,10 +201,14 @@ export class SchoolService {
       if (fieldName && fieldValue) {
         pipeline.push({ $match: { [fieldName]: fieldValue } });
       }
-      if (sortBy && sortOrder) {
-        pipeline.push({ $sort: { [sortBy]: +sortOrder } });
-      } else if (sortBy) {
-        pipeline.push({ $sort: { [sortBy]: 1 } });
+      if (sortBy || sortOrder) {
+        if (sortBy && sortOrder) {
+          pipeline.push({ $sort: { [sortBy]: +sortOrder } });
+        } else if (sortBy) {
+          pipeline.push({ $sort: { [sortBy]: 1 } });
+        } else if (sortOrder) {
+          pipeline.push({ $sort: { std: +sortOrder } });
+        }
       }
       pipeline.push(
         { $skip: (pageNumber - 1) * limit },
@@ -212,6 +216,8 @@ export class SchoolService {
         { $project: { password: 0 } },
       );
       const schools = await this.schoolModel.aggregate(pipeline);
+      console.log('schools', schools);
+
       if (!schools) {
         throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }

@@ -73,7 +73,7 @@ export class SchoolController {
 
   @Get('findAll')
   @UseGuards(RoleGuard([Role.Admin, Role.School]))
-  findAll(@Query() query): globalResponse {
+  async findAll(@Query() query): globalResponse {
     return this.schoolService.findAll(query);
   }
 
