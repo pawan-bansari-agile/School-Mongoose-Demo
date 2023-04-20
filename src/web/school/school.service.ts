@@ -207,7 +207,7 @@ export class SchoolService {
         } else if (sortBy) {
           pipeline.push({ $sort: { [sortBy]: 1 } });
         } else if (sortOrder) {
-          pipeline.push({ $sort: { std: +sortOrder } });
+          pipeline.push({ $sort: { name: +sortOrder } });
         }
       }
       pipeline.push(
