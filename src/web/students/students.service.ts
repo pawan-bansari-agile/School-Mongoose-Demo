@@ -111,12 +111,9 @@ export class StudentsService {
         { $limit: +limit },
         { $project: { password: 0 } },
       );
-      console.log('pipeline', pipeline);
 
       const students = await this.studModel.aggregate(pipeline);
-      console.log('studentss', students);
       if (!students) {
-        console.log('inside truthyness check');
       }
 
       return responseMap(students, SUCCESS_MSGS.FIND_ALL_STUDENTS);
@@ -130,6 +127,7 @@ export class StudentsService {
       const name = query.name || '';
       const regex = new RegExp(name, 'i');
       const id = query.id || '';
+
       const pipeline = [];
       if (user.role == Role.Admin) {
         if (name) {
@@ -162,16 +160,17 @@ export class StudentsService {
           );
         }
       }
+
       const existingStud = await this.studModel.aggregate(pipeline);
-      if (!existingStud) {
+
+      if (existingStud.length === 0) {
         const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
         return responseMap({}, '', { error });
       }
       return responseMap({ existingStud }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     } catch (err) {
-      console.log('from catch block', err);
+      const error = err.toString();
 
-      const error = err;
       return responseMap({}, '', { error });
     }
   }

@@ -222,7 +222,6 @@ export class SchoolService {
         { $project: { password: 0 } },
       );
       const schools = await this.schoolModel.aggregate(pipeline);
-      console.log('schools', schools);
 
       if (!schools) {
         const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
