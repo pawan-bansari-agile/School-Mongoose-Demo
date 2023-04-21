@@ -24,7 +24,7 @@ import Role, { StudentStorage } from 'src/utils/consts';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Users } from 'src/decorators/user.decorator';
 import { SchoolDocument } from 'src/schemas/schools.schema';
-import { ValidateObjectId } from 'src/utils/utils';
+// import { ValidateObjectId } from 'src/utils/utils';
 import { globalResponse } from 'src/generics/genericResponse';
 
 @Controller('students')
@@ -70,7 +70,7 @@ export class StudentsController {
   @Patch('update/isActive/:id')
   @UseGuards(RoleGuard(Role.School))
   async isActive(
-    @Param('id', new ValidateObjectId()) id: string,
+    @Param('id') id: string,
     @Users() user: SchoolDocument,
     @Body() body: UpdateStatusDto,
   ): globalResponse {

@@ -164,11 +164,15 @@ export class StudentsService {
       }
       const existingStud = await this.studModel.aggregate(pipeline);
       if (!existingStud) {
-        throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       return responseMap({ existingStud }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     } catch (err) {
-      return err;
+      console.log('from catch block', err);
+
+      const error = err;
+      return responseMap({}, '', { error });
     }
   }
 
@@ -183,7 +187,8 @@ export class StudentsService {
         $and: [{ _id: id }, { school: user.id }, { deleted: false }],
       });
       if (!existingStud) {
-        throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       if (file) {
         updateStudentDto.photo = file.filename;
@@ -225,10 +230,12 @@ export class StudentsService {
         $and: [{ _id: id }, { school: user.id }, { deleted: false }],
       });
       if (!existingStud) {
-        throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       if (existingStud.status == status) {
-        throw new BadRequestException(ERR_MSGS.NO_CHANGE_DETECTED);
+        const error = new BadRequestException(ERR_MSGS.NO_CHANGE_DETECTED);
+        return responseMap({}, '', { error });
       }
       const updatedDetails = await this.studModel.findOneAndUpdate(
         { _id: id },
@@ -251,7 +258,8 @@ export class StudentsService {
         ],
       });
       if (!existingStud) {
-        throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       await this.studModel.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId(id) },

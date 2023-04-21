@@ -27,7 +27,7 @@ import { JwtAuthGuard } from 'src/guards/jwtAuthGuard.guard';
 import { SchoolDocument } from 'src/schemas/schools.schema';
 import RoleGuard from 'src/guards/roleGuard.guard';
 import Role, { SchoolStorage } from 'src/utils/consts';
-import { ValidateObjectId } from 'src/utils/utils';
+// import { ValidateObjectId } from 'src/utils/utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { globalResponse } from 'src/generics/genericResponse';
 
@@ -79,9 +79,7 @@ export class SchoolController {
 
   @Get('findone/:id')
   @UseGuards(RoleGuard([Role.Admin, Role.School]))
-  async findOne(
-    @Param('id', new ValidateObjectId()) id: string,
-  ): globalResponse {
+  async findOne(@Param('id') id: string): globalResponse {
     return this.schoolService.findOne(id);
   }
 

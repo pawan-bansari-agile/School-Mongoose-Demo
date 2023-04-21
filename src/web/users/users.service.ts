@@ -33,7 +33,8 @@ export class UsersService {
         email: createUserDto.email,
       });
       if (existingUser && existingUser.deleted == false) {
-        throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
+        const error = new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
+        return responseMap({}, '', { error });
       }
       const password = Math.random().toString(36).slice(-8);
 
@@ -81,10 +82,12 @@ export class UsersService {
         ],
       });
       if (!user) {
-        throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       if (!(await verifyPass(loginDetails.password, user.password))) {
-        throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
+        const error = new UnauthorizedException(ERR_MSGS.BAD_CREDS);
+        return responseMap({}, '', { error });
       }
       const payload = {
         id: user._id,
@@ -206,7 +209,8 @@ export class UsersService {
         $and: [{ _id: user.id }, { deleted: false }],
       });
       if (!existingUser) {
-        throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       const updatedDetails = await this.userModel.findOneAndUpdate(
         { _id: user.id },
@@ -230,7 +234,8 @@ export class UsersService {
         $and: [{ _id: user.id }, { deleted: false }],
       });
       if (!existingUser) {
-        throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       await this.userModel.findOneAndUpdate(
         { _id: user.id },

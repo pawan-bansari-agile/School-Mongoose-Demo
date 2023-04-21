@@ -37,7 +37,8 @@ export class SchoolService {
         email: createSchoolDto.email,
       });
       if (existingSchool && existingSchool.deleted == false) {
-        throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
+        const error = new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
+        return responseMap({}, '', { error });
       }
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await hashPassword(password);
@@ -85,10 +86,12 @@ export class SchoolService {
         ],
       });
       if (!user) {
-        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       if (!(await verifyPass(loginDetails.password, user.password))) {
-        throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
+        const error = new UnauthorizedException(ERR_MSGS.BAD_CREDS);
+        return responseMap({}, '', { error });
       }
       const payload = {
         id: user._id,
@@ -115,7 +118,8 @@ export class SchoolService {
         ],
       });
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.EMAIL_NOT_LINKED);
+        const error = new BadRequestException(ERR_MSGS.EMAIL_NOT_LINKED);
+        return responseMap({}, '', { error });
       }
       const token = crypto.randomBytes(20).toString('hex');
       const link =
@@ -162,10 +166,12 @@ export class SchoolService {
         });
       }
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.LINK_EXPIRED);
+        const error = new BadRequestException(ERR_MSGS.LINK_EXPIRED);
+        return responseMap({}, '', { error });
       }
       if (resetPassDetails.newPass !== resetPassDetails.confirmPass) {
-        throw new BadRequestException(ERR_MSGS.PWD_DONT_MATCH);
+        const error = new BadRequestException(ERR_MSGS.PWD_DONT_MATCH);
+        return responseMap({}, '', { error });
       }
       const hashedPwd = await hashPassword(resetPassDetails.newPass);
       existingSchool.password = hashedPwd;
@@ -219,7 +225,8 @@ export class SchoolService {
       console.log('schools', schools);
 
       if (!schools) {
-        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       return responseMap(schools, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
     } catch (err) {
@@ -234,11 +241,13 @@ export class SchoolService {
         { password: 0 },
       );
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       return responseMap({ existingSchool }, SUCCESS_MSGS.FOUND_ONE_SCHOOL);
     } catch (err) {
-      return err;
+      const error = err;
+      return responseMap({}, '', { error });
     }
   }
 
@@ -256,7 +265,8 @@ export class SchoolService {
     const school = await this.schoolModel.aggregate(pipeline);
 
     if (!school) {
-      throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+      const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+      return responseMap({}, '', { error });
     }
     return school;
   }
@@ -271,7 +281,8 @@ export class SchoolService {
         $and: [{ _id: user.id }, { deleted: false }],
       });
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       if (file) {
         updateUserDto.photo = file.filename;
@@ -317,7 +328,8 @@ export class SchoolService {
         });
       }
       if (!existingSchool) {
-        throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
       await this.schoolModel.findOneAndUpdate(
         { _id: user.id },

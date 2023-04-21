@@ -23,7 +23,7 @@ import {
 import { UserDocument } from 'src/schemas/user.schema';
 import { JwtAuthGuard } from 'src/guards/jwtAuthGuard.guard';
 import { Users } from 'src/decorators/user.decorator';
-import { ValidateObjectId } from 'src/utils/utils';
+// import { ValidateObjectId } from 'src/utils/utils';
 import RoleGuard from 'src/guards/roleGuard.guard';
 import Role from 'src/utils/consts';
 import { globalResponse } from 'src/generics/genericResponse';
@@ -72,9 +72,7 @@ export class UsersController {
 
   @Get('findone/:id')
   @UseGuards(RoleGuard(Role.Admin))
-  async findOne(
-    @Param('id', new ValidateObjectId()) id: string,
-  ): globalResponse {
+  async findOne(@Param('id') id: string): globalResponse {
     return this.usersService.findOne(id);
   }
 

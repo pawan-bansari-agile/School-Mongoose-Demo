@@ -2,12 +2,16 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { responseMap } from 'src/generics/genericResponse';
 
 @Injectable()
 export class ValidateObjectId implements PipeTransform<string> {
   async transform(value: string) {
     const isValid = mongoose.Types.ObjectId.isValid(value);
-    if (!isValid) throw new BadRequestException('Invalid ID!');
+    if (!isValid) {
+      const error = new BadRequestException('Invalid ID!');
+      return responseMap({}, '', { error });
+    }
     return value;
   }
 }
