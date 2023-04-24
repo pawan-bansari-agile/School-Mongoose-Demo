@@ -3,6 +3,8 @@ import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { responseMap } from 'src/generics/genericResponse';
+import { join } from 'path';
+import { folderTypes } from './consts';
 
 @Injectable()
 export class ValidateObjectId implements PipeTransform<string> {
@@ -14,6 +16,11 @@ export class ValidateObjectId implements PipeTransform<string> {
     }
     return value;
   }
+}
+
+export function getFileUrl(fileName: string): string {
+  const fileUrl = `${process.env.BASE_URL}${folderTypes.SCHOOL_IMAGES}/${fileName}`;
+  return fileUrl;
 }
 
 export async function hashPassword(password: string) {

@@ -17,6 +17,10 @@ export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
 export const phoneRegex: RegExp =
   /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/;
 
+export enum folderTypes {
+  SCHOOL_IMAGES = 'schoolImages',
+}
+
 export const ERR_MSGS = {
   USER_NOT_FOUND: 'User not found!',
   EMAIL_ALREADY_USED:

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { get, Model } from 'mongoose';
 import { School, SchoolDocument } from 'src/schemas/schools.schema';
 import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
 import { hashPassword, JwtHelper, verifyPass } from 'src/utils/utils';
@@ -19,6 +19,7 @@ import {
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import { globalResponse, responseMap } from 'src/generics/genericResponse';
+import { getFileUrl } from 'src/utils/utils';
 
 @Injectable()
 export class SchoolService {
@@ -42,6 +43,7 @@ export class SchoolService {
       }
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await hashPassword(password);
+      const filePath = getFileUrl(file.filename);
       createSchoolDto.photo = file?.filename;
       const newSchool = new this.schoolModel({
         ...createSchoolDto,
@@ -56,6 +58,7 @@ export class SchoolService {
       const access_token = await this.jwtHelper.sign(payload);
       const user = newSchool.toObject();
       delete user.password;
+      user.photo = filePath;
       this.mailerService.sendMail({
         to: newSchool.email,
         subject: 'Successfull Registration!',
@@ -227,7 +230,16 @@ export class SchoolService {
         const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
         return responseMap({}, '', { error });
       }
-      return responseMap(schools, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
+      const schoolsUrl = schools.map((item) => {
+        const filename = item.photo;
+        const url = filename ? getFileUrl(item.photo) : null;
+        return {
+          ...item,
+          photo: url,
+        };
+      });
+
+      return responseMap(schoolsUrl, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
     } catch (err) {
       return err;
     }
@@ -243,6 +255,7 @@ export class SchoolService {
         const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
         return responseMap({}, '', { error });
       }
+      existingSchool.photo = getFileUrl(existingSchool.photo);
       return responseMap({ existingSchool }, SUCCESS_MSGS.FOUND_ONE_SCHOOL);
     } catch (err) {
       const error = err;
@@ -262,12 +275,20 @@ export class SchoolService {
       pipeline.push({ $match: { deleted: false } });
     }
     const school = await this.schoolModel.aggregate(pipeline);
+    const newSchool = school.map((item) => {
+      const filename = item.photo;
+      const url = filename ? getFileUrl(filename) : null;
+      return {
+        ...item,
+        photo: url,
+      };
+    });
 
     if (!school) {
       const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       return responseMap({}, '', { error });
     }
-    return school;
+    return newSchool;
   }
 
   async update(
@@ -308,6 +329,8 @@ export class SchoolService {
             }
           })
         : null;
+
+      updatedDetails.photo = getFileUrl(updatedDetails.photo);
       return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_SCHOOL);
     } catch (err) {
       return err;
