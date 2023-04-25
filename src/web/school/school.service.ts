@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { get, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { School, SchoolDocument } from 'src/schemas/schools.schema';
 import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
 import { hashPassword, JwtHelper, verifyPass } from 'src/utils/utils';
@@ -43,7 +43,7 @@ export class SchoolService {
       }
       const password = Math.random().toString(36).slice(-8);
       const hashedPassword = await hashPassword(password);
-      const filePath = getFileUrl(file.filename);
+      const filePath = getFileUrl(file.filename, 'SCHOOL_IMAGES');
       createSchoolDto.photo = file?.filename;
       const newSchool = new this.schoolModel({
         ...createSchoolDto,
@@ -232,7 +232,7 @@ export class SchoolService {
       }
       const schoolsUrl = schools.map((item) => {
         const filename = item.photo;
-        const url = filename ? getFileUrl(item.photo) : null;
+        const url = filename ? getFileUrl(item.photo, 'SCHOOL_IMAGES') : null;
         return {
           ...item,
           photo: url,
@@ -255,7 +255,7 @@ export class SchoolService {
         const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
         return responseMap({}, '', { error });
       }
-      existingSchool.photo = getFileUrl(existingSchool.photo);
+      existingSchool.photo = getFileUrl(existingSchool.photo, 'SCHOOL_IMAGES');
       return responseMap({ existingSchool }, SUCCESS_MSGS.FOUND_ONE_SCHOOL);
     } catch (err) {
       const error = err;
@@ -277,7 +277,7 @@ export class SchoolService {
     const school = await this.schoolModel.aggregate(pipeline);
     const newSchool = school.map((item) => {
       const filename = item.photo;
-      const url = filename ? getFileUrl(filename) : null;
+      const url = filename ? getFileUrl(filename, 'SCHOOL_IMAGES') : null;
       return {
         ...item,
         photo: url,
@@ -330,7 +330,7 @@ export class SchoolService {
           })
         : null;
 
-      updatedDetails.photo = getFileUrl(updatedDetails.photo);
+      updatedDetails.photo = getFileUrl(updatedDetails.photo, 'SCHOOL_IMAGES');
       return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_SCHOOL);
     } catch (err) {
       return err;

@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { responseMap } from 'src/generics/genericResponse';
-import { join } from 'path';
 import { folderTypes } from './consts';
 
 @Injectable()
@@ -18,8 +17,13 @@ export class ValidateObjectId implements PipeTransform<string> {
   }
 }
 
-export function getFileUrl(fileName: string): string {
-  const fileUrl = `${process.env.BASE_URL}${folderTypes.SCHOOL_IMAGES}/${fileName}`;
+export function getFileUrl(fileName: string, folderName: string): string {
+  let fileUrl;
+  if (folderName === 'SCHOOL_IMAGES') {
+    fileUrl = `${process.env.BASE_URL}${folderTypes.SCHOOL_IMAGES}/${fileName}`;
+  } else if (folderName === 'STUDENT_IMAGES') {
+    fileUrl = `${process.env.BASE_URL}${folderTypes.STUDENT_IMAGES}/${fileName}`;
+  }
   return fileUrl;
 }
 

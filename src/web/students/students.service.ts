@@ -12,6 +12,7 @@ import {
 import * as fs from 'fs';
 import { globalResponse, responseMap } from 'src/generics/genericResponse';
 import { SchoolService } from '../school/school.service';
+import { getFileUrl } from 'src/utils/utils';
 
 @Injectable()
 export class StudentsService {
@@ -32,6 +33,8 @@ export class StudentsService {
       const newStudent = new this.studModel(createStudentDto);
       newStudent.school = user.id;
       await newStudent.save();
+      const filePath = getFileUrl(file.filename, 'STUDENT_IMAGES');
+      newStudent.photo = filePath;
       return responseMap({ newStudent }, SUCCESS_MSGS.STUDENT_CREATED);
     } catch (err) {
       return err;
@@ -72,18 +75,6 @@ export class StudentsService {
           );
         }
       }
-      // if (fieldName && fieldValue) {
-      //   if (fieldName == 'school') {
-      //     const newFieldValue = new mongoose.Types.ObjectId(fieldValue);
-
-      //     pipeline.push({ $match: { [fieldName]: newFieldValue } });
-      //   } else if (fieldName == 'std') {
-      //     pipeline.push({ $match: { [fieldName]: +fieldValue } });
-      //   }
-      // }
-      // if (fieldName && fieldValue) {
-      //   pipeline.push({ $match: { [fieldName]: fieldValue } });
-      // }
       if (fieldName && fieldValue) {
         if (fieldName === 'school') {
           try {
@@ -114,9 +105,18 @@ export class StudentsService {
 
       const students = await this.studModel.aggregate(pipeline);
       if (!students) {
+        const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
+        return responseMap({}, '', { error });
       }
-
-      return responseMap(students, SUCCESS_MSGS.FIND_ALL_STUDENTS);
+      const studentUrl = students.map((item) => {
+        const filename = item.photo;
+        const url = filename ? getFileUrl(item.photo, 'STUDENT_IMAGES') : null;
+        return {
+          ...item,
+          photo: url,
+        };
+      });
+      return responseMap(studentUrl, SUCCESS_MSGS.FIND_ALL_STUDENTS);
     } catch (err) {
       return err;
     }
@@ -167,7 +167,15 @@ export class StudentsService {
         const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
         return responseMap({}, '', { error });
       }
-      return responseMap({ existingStud }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
+      const studentUrl = existingStud.map((item) => {
+        const filename = item.photo;
+        const url = filename ? getFileUrl(item.photo, 'STUDENT_IMAGES') : null;
+        return {
+          ...item,
+          photo: url,
+        };
+      });
+      return responseMap({ studentUrl }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     } catch (err) {
       const error = err.toString();
 
@@ -212,6 +220,7 @@ export class StudentsService {
             }
           })
         : null;
+      updatedDetails.photo = getFileUrl(updatedDetails.photo, 'STUDENT_IMAGES');
       return updatedDetails;
     } catch (err) {
       return err;
@@ -241,6 +250,7 @@ export class StudentsService {
         { $set: { status: status } },
         { new: true },
       );
+      updatedDetails.photo = getFileUrl(updatedDetails.photo, 'SCHOOL_IMAGES');
       return responseMap({ updatedDetails }, SUCCESS_MSGS.STATUS_CHANGED);
     } catch (err) {
       return err;

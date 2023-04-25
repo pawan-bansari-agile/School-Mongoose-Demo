@@ -19,6 +19,7 @@ export const phoneRegex: RegExp =
 
 export enum folderTypes {
   SCHOOL_IMAGES = 'schoolImages',
+  STUDENT_IMAGES = 'studentImages',
 }
 
 export const ERR_MSGS = {

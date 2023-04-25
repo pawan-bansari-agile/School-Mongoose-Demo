@@ -7,7 +7,6 @@ import {
   Matches,
 } from 'class-validator';
 import { phoneRegex } from 'src/utils/consts';
-// import * as DoubleType from '@mongoosejs/double';
 
 export class CreateStudentDto {
   @IsNotEmpty()
