@@ -242,6 +242,9 @@ export class UsersService {
       { $and: [{ _id: id }, { deleted: false }] },
       { password: 0 },
     );
+    if (!existingUser) {
+      throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
+    }
     // return responseMap({ existingUser }, SUCCESS_MSGS.FOUND_ONE_USER);
     return { existingUser, message: SUCCESS_MSGS.FOUND_ONE_USER };
     // } catch (err) {

@@ -56,6 +56,7 @@ export class StudentsController {
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   @UseInterceptors(FileInterceptor('file', StudentStorage))
   @UsePipes(ValidationPipe)
+  @ApiResponse({ type: Student })
   @UseGuards(RoleGuard([Role.Admin, Role.School]))
   async create(
     @Body() createStudentDto: CreateStudentDto,
@@ -78,6 +79,7 @@ export class StudentsController {
   @ApiOkResponse({ description: 'Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiResponse({ type: [Student] })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async findAll(@Users() user, @Query() query) {
     return this.studentsService.findAll(user, query);
@@ -86,10 +88,12 @@ export class StudentsController {
   @Get('findOne')
   @ApiBearerAuth()
   @ApiQuery({ name: 'id', required: true })
+  @ApiQuery({ name: 'name', required: true })
   @ApiOkResponse({ description: 'Found' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiResponse({ type: Student })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async findOne(@Users() user, @Query() query) {
     return this.studentsService.findOne(user, query);
@@ -104,6 +108,7 @@ export class StudentsController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiResponse({ type: Student })
   @UseInterceptors(FileInterceptor('file', StudentStorage))
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async update(
