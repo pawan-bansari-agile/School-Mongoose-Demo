@@ -13,6 +13,7 @@ import { MorganModule, MorganInterceptor } from 'nest-morgan';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { accessLogStream } from './utils/consts';
 import { JwtModule } from '@nestjs/jwt';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 
 @Module({
   imports: [
@@ -55,6 +56,10 @@ import { JwtModule } from '@nestjs/jwt';
     {
       provide: APP_INTERCEPTOR,
       useClass: MorganInterceptor('combined', { stream: accessLogStream }),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
     },
   ],
 })

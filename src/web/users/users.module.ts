@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -15,4 +15,10 @@ import { JwtService } from '@nestjs/jwt';
   controllers: [UsersController],
   providers: [UsersService, JwtService, JwtHelper],
 })
-export class UsersModule {}
+export class UsersModule implements OnModuleInit {
+  constructor(private userService: UsersService) {}
+
+  async onModuleInit(): Promise<void> {
+    await this.userService.createInitialUser();
+  }
+}

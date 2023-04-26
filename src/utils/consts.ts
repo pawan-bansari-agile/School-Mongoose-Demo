@@ -10,6 +10,12 @@ enum Role {
 
 export default Role;
 
+export const initialUser = {
+  userName: 'Pawan',
+  email: 'pawan@yopmail.com',
+  password: 'pawan@123',
+};
+
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
 
