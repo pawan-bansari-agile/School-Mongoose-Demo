@@ -48,8 +48,8 @@ export class UsersController {
   @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({
     description: 'The user has been successfully created.',
+    type: User,
   })
-  @ApiResponse({ type: User })
   @ApiBadRequestResponse({
     description: 'Email already exists!',
   })
@@ -118,14 +118,14 @@ export class UsersController {
     type: [User],
   })
   @UseGuards(RoleGuard(Role.Admin))
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    return await this.usersService.findAll();
   }
 
   @Get('findone/:id')
   @ApiBearerAuth()
   @ApiParam({ name: 'id', required: true })
-  @ApiResponse({ type: [User] })
+  @ApiResponse({ type: User })
   @ApiBadRequestResponse({ description: 'User not found!' })
   @UseGuards(RoleGuard(Role.Admin))
   async findOne(@Param('id') id: string) {

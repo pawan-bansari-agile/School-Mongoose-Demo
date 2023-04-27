@@ -35,6 +35,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -68,7 +69,7 @@ export class SchoolController {
   }
 
   @Post('login')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'School logged in successfully!',
     type: School,
   })
@@ -87,7 +88,7 @@ export class SchoolController {
 
   @Post('forget')
   @ApiBody({ type: ForgetSchoolPassDto })
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Mail sent!',
   })
   @ApiBearerAuth()
@@ -100,7 +101,7 @@ export class SchoolController {
   }
 
   @Post('reset')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Password changed succesfully!',
   })
   @ApiBearerAuth()
@@ -120,7 +121,7 @@ export class SchoolController {
   }
 
   @Get('findAll')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Found all schools!',
     type: [School],
   })
@@ -141,7 +142,7 @@ export class SchoolController {
   }
 
   @Get('findone/:id')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Found one school!',
     type: School,
   })
@@ -158,17 +159,17 @@ export class SchoolController {
   @Get('findByName')
   @ApiBadRequestResponse({
     description: 'School not found!',
-    type: School,
   })
   @ApiQuery({ name: 'name', required: true })
   @ApiBearerAuth()
+  @ApiOkResponse({ description: 'School Found!', type: School })
   @UseGuards(RoleGuard(Role.Admin))
   async findByName(@Query() name: string) {
     await this.schoolService.findByName(name);
   }
 
   @Patch('update')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'School updated!',
     type: School,
   })

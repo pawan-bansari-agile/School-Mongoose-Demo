@@ -27,6 +27,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -49,8 +50,8 @@ export class StudentsController {
   @Post('create')
   @ApiBearerAuth()
   @ApiBody({ type: CreateStudentDto })
-  @ApiParam({ name: 'id', required: false })
-  @ApiOkResponse({ description: 'Created' })
+  @ApiQuery({ name: 'id', required: false })
+  @ApiCreatedResponse({ description: 'Created', type: Student })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
@@ -76,10 +77,9 @@ export class StudentsController {
   @ApiQuery({ name: 'sortBy', required: false })
   @ApiQuery({ name: 'sortOrder', required: false })
   @ApiQuery({ name: 'keyword', required: false })
-  @ApiOkResponse({ description: 'Found' })
+  @ApiOkResponse({ description: 'Found', type: [Student] })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @ApiResponse({ type: [Student] })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async findAll(@Users() user, @Query() query) {
     return this.studentsService.findAll(user, query);
@@ -89,11 +89,10 @@ export class StudentsController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'id', required: true })
   @ApiQuery({ name: 'name', required: true })
-  @ApiOkResponse({ description: 'Found' })
+  @ApiOkResponse({ description: 'Found', type: Student })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @ApiResponse({ type: Student })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async findOne(@Users() user, @Query() query) {
     return this.studentsService.findOne(user, query);
@@ -103,12 +102,11 @@ export class StudentsController {
   @ApiBearerAuth()
   @ApiBody({ type: UpdateStudentDto })
   @ApiParam({ name: 'id', required: true })
-  @ApiOkResponse({ description: 'Updated' })
+  @ApiOkResponse({ description: 'Updated', type: Student })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  @ApiResponse({ type: Student })
   @UseInterceptors(FileInterceptor('file', StudentStorage))
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async update(
@@ -153,7 +151,8 @@ export class StudentsController {
 
   @Get('totalCount')
   @ApiBearerAuth()
-  @ApiQuery({ name: 'search', description: 'Search query' })
+  @ApiQuery({ name: 'std', description: 'to get standard wise count' })
+  @ApiQuery({ name: 'school', description: 'to get school wise count' })
   @ApiResponse({
     status: 200,
     description: 'Returns total count of students',
