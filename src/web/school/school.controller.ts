@@ -58,7 +58,7 @@ export class SchoolController {
     description: 'Email already used!',
   })
   @ApiBody({ type: CreateSchoolDto })
-  // @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard(Role.Admin))
   @UsePipes(ValidationPipe)
   @UseInterceptors(FileInterceptor('file', SchoolStorage))
   async create(
@@ -111,7 +111,7 @@ export class SchoolController {
   @ApiBody({ type: ResetSchoolPassDto })
   @ApiQuery({ name: 'token', required: true })
   @UsePipes(ValidationPipe)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async reset(
     @Body() resetPassDetails: ResetSchoolPassDto,
     @Users() user: SchoolDocument,
@@ -136,7 +136,7 @@ export class SchoolController {
   @ApiQuery({ name: 'sortBy', required: false })
   @ApiQuery({ name: 'sortOrder', required: false })
   @ApiQuery({ name: 'keyword', required: false })
-  // @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard(Role.Admin))
   async findAll(@Query() query) {
     return this.schoolService.findAll(query);
   }
@@ -151,7 +151,7 @@ export class SchoolController {
     description: 'School not found!',
   })
   @ApiParam({ name: 'id', required: true })
-  // @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard(Role.Admin))
   async findOne(@Param('id') id: string) {
     return this.schoolService.findOne(id);
   }
@@ -181,7 +181,7 @@ export class SchoolController {
   @ApiQuery({ name: 'id', required: true })
   @UsePipes(ValidationPipe)
   @UseInterceptors(FileInterceptor('file', SchoolStorage))
-  // @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
   async update(
     @Body() updateSchoolDto: UpdateSchoolDto,
     @Users() user,
@@ -200,7 +200,7 @@ export class SchoolController {
     description: 'School not found!',
   })
   @ApiQuery({ name: 'id', required: true })
-  // @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard(Role.Admin))
   async remove(@Users() user: UserDocument, @Query('id') id: string) {
     return this.schoolService.remove(user, id);
   }

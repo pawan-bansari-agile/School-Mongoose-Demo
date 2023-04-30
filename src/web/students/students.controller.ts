@@ -98,7 +98,7 @@ export class StudentsController {
     return this.studentsService.findOne(user, query);
   }
 
-  @Patch('update/:id')
+  @Patch('update')
   @ApiBearerAuth()
   @ApiBody({ type: UpdateStudentDto })
   @ApiParam({ name: 'id', required: true })
@@ -110,7 +110,7 @@ export class StudentsController {
   @UseInterceptors(FileInterceptor('file', StudentStorage))
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async update(
-    @Param('id') id: string,
+    @Query('id') id: string,
     @Body() updateStudentDto: UpdateStudentDto,
     @Users() user,
     @UploadedFile() file: Express.Multer.File,
@@ -136,7 +136,7 @@ export class StudentsController {
     return this.studentsService.isActive(id, user, body);
   }
 
-  @Delete('delete/:id')
+  @Delete('delete')
   @ApiBearerAuth()
   @ApiParam({ name: 'id', description: 'Student ID' })
   @ApiResponse({
@@ -145,7 +145,7 @@ export class StudentsController {
     type: Student,
   })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
-  async remove(@Users() user, @Param() id: string) {
+  async remove(@Users() user, @Query() id: string) {
     return this.studentsService.remove(user, id);
   }
 
