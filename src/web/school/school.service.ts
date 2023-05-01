@@ -42,10 +42,10 @@ export class SchoolService {
     }
     const password = Math.random().toString(36).slice(-8);
     const hashedPassword = await hashPassword(password);
-    let filePath;
-    if (file) {
-      filePath = getFileUrl(file.filename, 'SCHOOL_IMAGES');
-    }
+    // let filePath;
+    // if (file) {
+    const filePath = file ? getFileUrl(file.filename, 'SCHOOL_IMAGES') : '';
+    // }
     createSchoolDto.photo = file?.filename;
     const newSchool = new this.schoolModel({
       ...createSchoolDto,

@@ -51,10 +51,10 @@ export class StudentsService {
       newStudent.school = user.id;
     }
     await newStudent.save();
-    let filePath;
-    if (file) {
-      filePath = getFileUrl(file.filename, 'STUDENT_IMAGES');
-    }
+    // filePath;
+    // if (file) {
+    const filePath = file ? getFileUrl(file.filename, 'STUDENT_IMAGES') : '';
+    // }
     newStudent.photo = filePath ? filePath : null;
     // return responseMap({ newStudent }, SUCCESS_MSGS.STUDENT_CREATED);
     return { newStudent, message: SUCCESS_MSGS.STUDENT_CREATED };
