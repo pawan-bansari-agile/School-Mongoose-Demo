@@ -107,6 +107,7 @@ export class SchoolService {
       role: user.role,
     };
     const access_token = await this.jwtHelper.sign(payload);
+    user.photo = getFileUrl(user.photo, 'SCHOOL_IMAGES');
     // return responseMap({ access_token, user }, SUCCESS_MSGS.SCHL_LOGGED_IN);
     return { access_token, user, message: SUCCESS_MSGS.SCHL_LOGGED_IN };
     // } catch (err) {
