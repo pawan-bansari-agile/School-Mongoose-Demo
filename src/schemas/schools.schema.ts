@@ -90,6 +90,12 @@ export class School {
 
   @Prop({ default: false })
   deleted: boolean;
+
+  @Prop({ default: null })
+  standards: number[];
+
+  @Prop()
+  count: number;
 }
 
 const SchoolSchema = SchemaFactory.createForClass(School);

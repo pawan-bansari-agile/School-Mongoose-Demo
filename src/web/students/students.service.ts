@@ -46,8 +46,22 @@ export class StudentsService {
       if (!school) {
         throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
       }
+      if (!school.standards.includes(newStudent.std)) {
+        school.standards.push(newStudent.std);
+        school.count += 1;
+        await school.save();
+      }
       newStudent.school = school;
     } else if (user.role == 'School') {
+      const school = await this.schoolModel.findOne(
+        { $and: [{ _id: user.id }, { deleted: false }] },
+        { password: 0 },
+      );
+      if (!school.standards.includes(newStudent.std)) {
+        school.standards.push(newStudent.std);
+        school.count += 1;
+        await school.save();
+      }
       newStudent.school = user.id;
     }
     await newStudent.save();
@@ -333,51 +347,99 @@ export class StudentsService {
 
   async totalCount(user, query) {
     // try {
-    const std = query.std || '';
+    let std: number[];
 
     const school = query.school || '';
 
     const pipeline = [];
 
+    // let totalStudentCount;
+
     pipeline.push({ $match: { deleted: false } });
     if (user.role == Role.Admin) {
-      if (std || school) {
-        if (std) {
-          pipeline.push({ $match: { std: +std } });
-        }
-        if (school) {
-          const existingSchool = await this.schoolService.findByName(school);
+      // if (std || school) {
+      //   if (std) {
+      //     pipeline.push({ $match: { std: +std } });
+      //   }
+      //   if (school) {
 
-          pipeline.push({ $match: { school: existingSchool[0]._id } });
-        }
-      }
-    } else if (user.role == Role.School) {
-      if (std) {
-        pipeline.push(
-          { $match: { school: new mongoose.Types.ObjectId(user.id) } },
-          { $match: { std: +std } },
+      // totalStudentCount = await this.studModel.aggregate([
+      //   { $match: { deleted: false } },
+      //   { $count: 'total' },
+      // ]);
+      // console.log('totalStudentCount', totalStudentCount);
+
+      const existingSchool = await this.schoolService.findByName(school);
+      console.log('school from admin loop', existingSchool);
+
+      std = existingSchool[0].standards;
+      if (!std) {
+        throw new BadRequestException(
+          'No Standards Found for the selected school',
         );
-      } else {
-        pipeline.push({
-          $match: { school: new mongoose.Types.ObjectId(user.id) },
-        });
       }
+      console.log('std from admin loop', std);
+
+      //     pipeline.push({ $match: { school: existingSchool[0]._id } });
+      //   }
+      // }
+      pipeline.push({ $match: { std: { $in: std } } });
+      pipeline.push({ $group: { _id: '$std', count: { $sum: 1 } } });
+      pipeline.push({ $sort: { _id: 1 } });
+    } else if (user.role == Role.School) {
+      const school = await this.schoolModel.findOne(
+        { $and: [{ _id: user.id }, { deleted: false }] },
+        { password: 0 },
+      );
+      console.log('school from school loop', school);
+
+      std = school.standards;
+      if (!std) {
+        throw new BadRequestException(
+          'No Standards Found for the selected school',
+        );
+      }
+      pipeline.push({ $match: { std: { $in: std } } });
+      pipeline.push({ $group: { _id: '$std', count: { $sum: 1 } } });
+      pipeline.push({ $sort: { _id: 1 } });
+      // if (std) {
+      //   pipeline.push(
+      //     { $match: { school: new mongoose.Types.ObjectId(user.id) } },
+      //     { $match: { std: +std } },
+      //   );
+      // } else {
+      //   pipeline.push({
+      //     $match: { school: new mongoose.Types.ObjectId(user.id) },
+      //   });
+      // }
     }
-    pipeline.push({
-      $group: {
-        _id: null,
-        count: { $sum: 1 },
-      },
-    });
+    // pipeline.push({
+    //   $group: {
+    //     _id: null,
+    //     count: { $sum: 1 },
+    //   },
+    // });
 
     const totalCount = await this.studModel.aggregate(pipeline);
+    console.log('pipeline for count', pipeline);
 
-    const count = totalCount[0].count;
+    console.log('totalCoount', totalCount);
+
+    // const count = totalCount;
 
     // return responseMap({ count });
-    return count;
+    return totalCount;
     // } catch (err) {
     //   return err;
     // }
+  }
+
+  async totalStudentCount() {
+    const totalStudentCount = await this.studModel.aggregate([
+      { $match: { deleted: false } },
+      { $count: 'total' },
+    ]);
+
+    return totalStudentCount;
   }
 }

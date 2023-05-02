@@ -303,6 +303,8 @@ export class SchoolService {
       // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
+    console.log('newschool from findbyname method call', newSchool);
+
     return newSchool;
   }
 

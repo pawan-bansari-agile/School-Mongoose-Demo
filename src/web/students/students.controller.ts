@@ -162,4 +162,16 @@ export class StudentsController {
   async totalCount(@Users() user, @Query() query) {
     return this.studentsService.totalCount(user, query);
   }
+
+  @Get('totalStudentCount')
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Returns total count of students',
+    type: Number,
+  })
+  @UseGuards(RoleGuard(Role.Admin))
+  async totalStudentCount() {
+    return this.studentsService.totalStudentCount();
+  }
 }
