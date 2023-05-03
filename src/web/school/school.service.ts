@@ -31,21 +31,16 @@ export class SchoolService {
   ) {}
 
   async create(createSchoolDto: CreateSchoolDto, file: Express.Multer.File) {
-    // try {
     const existingSchool = await this.schoolModel.findOne({
       email: createSchoolDto.email,
     });
     if (existingSchool && existingSchool.deleted == false) {
-      // const error = new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
     }
     const password = Math.random().toString(36).slice(-8);
     const hashedPassword = await hashPassword(password);
-    // let filePath;
-    // if (file) {
+
     const filePath = file ? getFileUrl(file.filename, 'SCHOOL_IMAGES') : '';
-    // }
     createSchoolDto.photo = file?.filename;
     const newSchool = new this.schoolModel({
       ...createSchoolDto,
@@ -72,15 +67,10 @@ export class SchoolService {
         default: 'Pawan',
       },
     });
-    // return responseMap({ access_token, user }, SUCCESS_MSGS.SCHOOL_CREATED);
     return { access_token, user, message: SUCCESS_MSGS.SCHOOL_CREATED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async login(loginDetails: LoginSchoolDto) {
-    // try {
     const user = await this.schoolModel.findOne({
       $and: [
         {
@@ -92,13 +82,9 @@ export class SchoolService {
       ],
     });
     if (!user) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
     if (!(await verifyPass(loginDetails.password, user.password))) {
-      // const error = new UnauthorizedException(ERR_MSGS.BAD_CREDS);
-      // return responseMap({}, '', { error });
       throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
     }
     const payload = {
@@ -108,15 +94,10 @@ export class SchoolService {
     };
     const access_token = await this.jwtHelper.sign(payload);
     user.photo = getFileUrl(user.photo, 'SCHOOL_IMAGES');
-    // return responseMap({ access_token, user }, SUCCESS_MSGS.SCHL_LOGGED_IN);
     return { access_token, user, message: SUCCESS_MSGS.SCHL_LOGGED_IN };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async forget(forgetPassDetails: ForgetSchoolPassDto, req) {
-    // try {
     const existingSchool = await this.schoolModel.findOne({
       $and: [
         {
@@ -128,8 +109,6 @@ export class SchoolService {
       ],
     });
     if (!existingSchool) {
-      // const error = new BadRequestException(ERR_MSGS.EMAIL_NOT_LINKED);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.EMAIL_NOT_LINKED);
     }
     const token = crypto.randomBytes(20).toString('hex');
@@ -149,11 +128,7 @@ export class SchoolService {
       Date.now() + 600000,
     ).toUTCString();
     await existingSchool.save();
-    // return responseMap({}, SUCCESS_MSGS.MAIL_SENT);
     return { message: SUCCESS_MSGS.MAIL_SENT };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async reset(
@@ -161,7 +136,6 @@ export class SchoolService {
     user: SchoolDocument,
     token: string,
   ) {
-    // try {
     let existingSchool: SchoolDocument;
     if (!token) {
       existingSchool = await this.schoolModel.findOne({
@@ -177,13 +151,9 @@ export class SchoolService {
       });
     }
     if (!existingSchool) {
-      // const error = new BadRequestException(ERR_MSGS.LINK_EXPIRED);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.LINK_EXPIRED);
     }
     if (resetPassDetails.newPass !== resetPassDetails.confirmPass) {
-      // const error = new BadRequestException(ERR_MSGS.PWD_DONT_MATCH);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.PWD_DONT_MATCH);
     }
     const hashedPwd = await hashPassword(resetPassDetails.newPass);
@@ -191,15 +161,10 @@ export class SchoolService {
     existingSchool.forgetPwdToken = null;
     existingSchool.forgetPwdExpires = null;
     await existingSchool.save();
-    // return responseMap({}, SUCCESS_MSGS.PWD_CHANGED);
     return { message: SUCCESS_MSGS.PWD_CHANGED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findAll(query) {
-    // try {
     const fieldName = query.fieldName || '';
     const fieldValue = query.fieldValue || '';
     const fieldValueRegex = new RegExp(fieldValue, 'i');
@@ -239,8 +204,6 @@ export class SchoolService {
     const schools = await this.schoolModel.aggregate(pipeline);
 
     if (!schools) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
     const schoolsUrl = schools.map((item) => {
@@ -252,36 +215,24 @@ export class SchoolService {
       };
     });
 
-    // return responseMap(schoolsUrl, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
     return {
       schoolsUrl,
       pageNumber,
       limit,
       message: SUCCESS_MSGS.FIND_ALL_SCHOOLS,
     };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findOne(id: string) {
-    // try {
     const existingSchool = await this.schoolModel.findOne(
       { $and: [{ _id: id }, { deleted: false }] },
       { password: 0 },
     );
     if (!existingSchool) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
     existingSchool.photo = getFileUrl(existingSchool.photo, 'SCHOOL_IMAGES');
-    // return responseMap({ existingSchool }, SUCCESS_MSGS.FOUND_ONE_SCHOOL);
     return { existingSchool, message: SUCCESS_MSGS.FOUND_ONE_SCHOOL };
-    // } catch (err) {
-    //   const error = err;
-    //   return responseMap({}, '', { error });
-    // }
   }
 
   async findByName(keyword: string) {
@@ -306,11 +257,8 @@ export class SchoolService {
     });
 
     if (!school) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
-    console.log('newschool from findbyname method call', newSchool);
 
     return newSchool;
   }
@@ -321,7 +269,6 @@ export class SchoolService {
     id: string,
     file: Express.Multer.File,
   ) {
-    // try {
     let existingSchool;
     if (user.role === 'Admin') {
       existingSchool = await this.schoolModel.findOne({
@@ -333,8 +280,6 @@ export class SchoolService {
       });
     }
     if (!existingSchool) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
     if (file) {
@@ -366,40 +311,21 @@ export class SchoolService {
     }
 
     updatedDetails.photo = getFileUrl(updatedDetails.photo, 'SCHOOL_IMAGES');
-    // return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_SCHOOL);
     return { updatedDetails, message: SUCCESS_MSGS.UPDATED_SCHOOL };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async remove(user: UserDocument, schlId: string) {
-    // try {
-    // let existingSchool = {};
-    // if (user.role == Role.School) {
-    //   existingSchool = await this.schoolModel.findOne({
-    //     $and: [{ _id: user.id }, { deleted: false }],
-    //   });
-    // } else if (user.role == Role.Admin) {
     const existingSchool = await this.schoolModel.findOne({
       $and: [{ _id: schlId }, { deleted: false }],
     });
-    console.log('existingSchool', existingSchool);
 
-    // }
     if (!existingSchool) {
-      // const error = new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
     await this.schoolModel.findOneAndUpdate(
       { _id: existingSchool.id },
       { $set: { deleted: true } },
     );
-    // return responseMap({}, SUCCESS_MSGS.SCHOOL_DELETED);
     return { message: SUCCESS_MSGS.SCHOOL_DELETED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 }

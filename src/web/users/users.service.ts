@@ -70,13 +70,10 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    // try {
     const existingUser = await this.userModel.findOne({
       email: createUserDto.email,
     });
     if (existingUser && existingUser.deleted == false) {
-      // const error = new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.EMAIL_ALREADY_USED);
     }
     const password = Math.random().toString(36).slice(-8);
@@ -106,15 +103,10 @@ export class UsersService {
         default: 'Pawan',
       },
     });
-    // return responseMap({ access_token, user }, SUCCESS_MSGS.USER_CREATED);
     return { access_token, user, message: SUCCESS_MSGS.USER_CREATED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async login(loginDetails: LoginUserDto) {
-    // try {
     const user = await this.userModel.findOne({
       $and: [
         {
@@ -126,13 +118,9 @@ export class UsersService {
       ],
     });
     if (!user) {
-      // const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
     }
     if (!(await verifyPass(loginDetails.password, user.password))) {
-      // const error = new UnauthorizedException(ERR_MSGS.BAD_CREDS);
-      // return responseMap({}, '', { error });
       throw new UnauthorizedException(ERR_MSGS.BAD_CREDS);
     }
     const payload = {
@@ -141,15 +129,10 @@ export class UsersService {
       role: user.role,
     };
     const access_token = await this.jwtHelper.sign(payload);
-    // return responseMap({ access_token, user }, SUCCESS_MSGS.LOGGED_IN);
     return { access_token, user, message: SUCCESS_MSGS.LOGGED_IN };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async forget(forgetPassDetails: ForgetPassDto, req) {
-    // try {
     const existingUser = await this.userModel.findOne({
       $and: [
         {
@@ -178,11 +161,7 @@ export class UsersService {
     existingUser.forgetPwdToken = token;
     existingUser.forgetPwdExpires = new Date(Date.now() + 600000).toUTCString();
     await existingUser.save();
-    // return responseMap({}, SUCCESS_MSGS.MAIL_SENT);
     return { message: SUCCESS_MSGS.MAIL_SENT };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async reset(
@@ -190,7 +169,6 @@ export class UsersService {
     user: UserDocument,
     token: string,
   ) {
-    // try {
     let existingUser: UserDocument;
     if (!token) {
       existingUser = await this.userModel.findOne({
@@ -216,28 +194,18 @@ export class UsersService {
     existingUser.forgetPwdToken = null;
     existingUser.forgetPwdExpires = null;
     await existingUser.save();
-    // return responseMap({}, SUCCESS_MSGS.PWD_CHANGED);
     return { message: SUCCESS_MSGS.PWD_CHANGED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findAll() {
-    // try {
     const users = await this.userModel.find(
       { deleted: false },
       { password: 0 },
     );
-    // return responseMap(users, SUCCESS_MSGS.FIND_ALL_USERS);
     return { users, message: SUCCESS_MSGS.FIND_ALL_USERS };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findOne(id: string) {
-    // try {
     const existingUser = await this.userModel.findOne(
       { $and: [{ _id: id }, { deleted: false }] },
       { password: 0 },
@@ -245,21 +213,14 @@ export class UsersService {
     if (!existingUser) {
       throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
     }
-    // return responseMap({ existingUser }, SUCCESS_MSGS.FOUND_ONE_USER);
     return { existingUser, message: SUCCESS_MSGS.FOUND_ONE_USER };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async update(updateUserDto: UpdateUserDto, user: UserDocument) {
-    // try {
     const existingUser = await this.userModel.findOne({
       $and: [{ _id: user.id }, { deleted: false }],
     });
     if (!existingUser) {
-      // const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
     }
     const updatedDetails = await this.userModel.findOneAndUpdate(
@@ -272,31 +233,20 @@ export class UsersService {
       },
       { projection: { password: 0 }, new: true },
     );
-    // return responseMap({ updatedDetails }, SUCCESS_MSGS.UPDATED_USER);
     return { updatedDetails, message: SUCCESS_MSGS.UPDATED_USER };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async remove(user: UserDocument) {
-    // try {
     const existingUser = await this.userModel.findOne({
       $and: [{ _id: user.id }, { deleted: false }],
     });
     if (!existingUser) {
-      // const error = new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.USER_NOT_FOUND);
     }
     await this.userModel.findOneAndUpdate(
       { _id: user.id },
       { $set: { deleted: true } },
     );
-    // return responseMap({}, SUCCESS_MSGS.USER_DELETED);
     return { message: SUCCESS_MSGS.USER_DELETED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 }

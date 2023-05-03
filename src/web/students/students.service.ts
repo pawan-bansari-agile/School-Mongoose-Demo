@@ -28,9 +28,6 @@ export class StudentsService {
     file: Express.Multer.File,
     id: string,
   ) {
-    console.log('user', user);
-
-    // try {
     if (file) {
       createStudentDto.photo = file.filename;
     }
@@ -65,20 +62,12 @@ export class StudentsService {
       newStudent.school = user.id;
     }
     await newStudent.save();
-    // filePath;
-    // if (file) {
     const filePath = file ? getFileUrl(file.filename, 'STUDENT_IMAGES') : '';
-    // }
     newStudent.photo = filePath ? filePath : null;
-    // return responseMap({ newStudent }, SUCCESS_MSGS.STUDENT_CREATED);
     return { newStudent, message: SUCCESS_MSGS.STUDENT_CREATED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findAll(user, query) {
-    // try {
     const fieldName = query.fieldName || '';
     const fieldValue = query.fieldValue || '';
     const pageNumber = query.pageNumber || 1;
@@ -141,8 +130,6 @@ export class StudentsService {
 
     const students = await this.studModel.aggregate(pipeline);
     if (!students) {
-      // const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
     const studentUrl = students.map((item) => {
@@ -153,20 +140,15 @@ export class StudentsService {
         photo: url,
       };
     });
-    // return responseMap(studentUrl, SUCCESS_MSGS.FIND_ALL_STUDENTS);
     return {
       studentUrl,
       pageNumber,
       limit,
       message: SUCCESS_MSGS.FIND_ALL_STUDENTS,
     };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async findOne(user, query) {
-    // try {
     const name = query.name || '';
     const regex = new RegExp(name, 'i');
     const id = query.id || '';
@@ -207,8 +189,6 @@ export class StudentsService {
     const existingStud = await this.studModel.aggregate(pipeline);
 
     if (existingStud.length === 0) {
-      // const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
     const studentUrl = existingStud.map((item) => {
@@ -219,13 +199,7 @@ export class StudentsService {
         photo: url,
       };
     });
-    // return responseMap({ studentUrl }, SUCCESS_MSGS.FOUND_ONE_STUDENT);
     return { studentUrl, message: SUCCESS_MSGS.FOUND_ONE_STUDENT };
-    // } catch (err) {
-    //   const error = err.toString();
-
-    //   return responseMap({}, '', { error });
-    // }
   }
 
   async update(
@@ -234,7 +208,6 @@ export class StudentsService {
     user,
     file: Express.Multer.File,
   ) {
-    // try {
     let existingStud;
     if (user.role == 'Admin') {
       existingStud = await this.studModel.findOne({
@@ -246,8 +219,6 @@ export class StudentsService {
       });
     }
     if (!existingStud) {
-      // const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
     if (file) {
@@ -277,13 +248,9 @@ export class StudentsService {
     }
     updatedDetails.photo = getFileUrl(updatedDetails.photo, 'STUDENT_IMAGES');
     return updatedDetails;
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async isActive(id: string, user, body: UpdateStatusDto) {
-    // try {
     const status: boolean = body.status || false;
     let existingStud;
     if (user.role == 'Admin') {
@@ -296,13 +263,9 @@ export class StudentsService {
       });
     }
     if (!existingStud) {
-      // const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
     if (existingStud.status == status) {
-      // const error = new BadRequestException(ERR_MSGS.NO_CHANGE_DETECTED);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.NO_CHANGE_DETECTED);
     }
     const updatedDetails = await this.studModel.findOneAndUpdate(
@@ -311,15 +274,10 @@ export class StudentsService {
       { new: true },
     );
     updatedDetails.photo = getFileUrl(updatedDetails.photo, 'SCHOOL_IMAGES');
-    // return responseMap({ updatedDetails }, SUCCESS_MSGS.STATUS_CHANGED);
     return { updatedDetails, message: SUCCESS_MSGS.STATUS_CHANGED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async remove(user: SchoolDocument, id: string) {
-    // try {
     let existingStud;
     if (user.role == 'Admin') {
       existingStud = await this.studModel.findOne({
@@ -335,47 +293,25 @@ export class StudentsService {
       });
     }
     if (!existingStud) {
-      // const error = new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
-      // return responseMap({}, '', { error });
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
     await this.studModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(id) },
       { $set: { deleted: true } },
     );
-    // return responseMap({}, SUCCESS_MSGS.STUDENT_DELETED);
     return { message: SUCCESS_MSGS.STUDENT_DELETED };
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async totalCount(user, query) {
-    // try {
     let std: number[];
 
     const school = query.school || '';
 
     const pipeline = [];
 
-    // let totalStudentCount;
-
     pipeline.push({ $match: { deleted: false } });
     if (user.role == Role.Admin) {
-      // if (std || school) {
-      //   if (std) {
-      //     pipeline.push({ $match: { std: +std } });
-      //   }
-      //   if (school) {
-
-      // totalStudentCount = await this.studModel.aggregate([
-      //   { $match: { deleted: false } },
-      //   { $count: 'total' },
-      // ]);
-      // console.log('totalStudentCount', totalStudentCount);
-
       const existingSchool = await this.schoolService.findByName(school);
-      console.log('school from admin loop', existingSchool);
 
       std = existingSchool[0].standards;
       if (!std) {
@@ -383,11 +319,7 @@ export class StudentsService {
           'No Standards Found for the selected school',
         );
       }
-      console.log('std from admin loop', std);
 
-      //     pipeline.push({ $match: { school: existingSchool[0]._id } });
-      //   }
-      // }
       pipeline.push({ $match: { std: { $in: std } } });
       pipeline.push({ $group: { _id: '$std', count: { $sum: 1 } } });
       pipeline.push({ $sort: { _id: 1 } });
@@ -396,7 +328,6 @@ export class StudentsService {
         { $and: [{ _id: user.id }, { deleted: false }] },
         { password: 0 },
       );
-      console.log('school from school loop', school);
 
       std = school.standards;
       if (!std) {
@@ -407,36 +338,11 @@ export class StudentsService {
       pipeline.push({ $match: { std: { $in: std } } });
       pipeline.push({ $group: { _id: '$std', count: { $sum: 1 } } });
       pipeline.push({ $sort: { _id: 1 } });
-      // if (std) {
-      //   pipeline.push(
-      //     { $match: { school: new mongoose.Types.ObjectId(user.id) } },
-      //     { $match: { std: +std } },
-      //   );
-      // } else {
-      //   pipeline.push({
-      //     $match: { school: new mongoose.Types.ObjectId(user.id) },
-      //   });
-      // }
     }
-    // pipeline.push({
-    //   $group: {
-    //     _id: null,
-    //     count: { $sum: 1 },
-    //   },
-    // });
 
     const totalCount = await this.studModel.aggregate(pipeline);
-    console.log('pipeline for count', pipeline);
 
-    console.log('totalCoount', totalCount);
-
-    // const count = totalCount;
-
-    // return responseMap({ count });
     return totalCount;
-    // } catch (err) {
-    //   return err;
-    // }
   }
 
   async totalStudentCount() {

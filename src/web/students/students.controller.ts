@@ -38,9 +38,6 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Student } from 'src/schemas/students.schema';
-// import { SchoolDocument } from 'src/schemas/schools.schema';
-// import { ValidateObjectId } from 'src/utils/utils';
-// import { globalResponse } from 'src/generics/genericResponse';
 
 @ApiTags('Students')
 @Controller('students')

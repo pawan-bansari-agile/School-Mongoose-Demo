@@ -163,7 +163,7 @@ export class SchoolController {
   @ApiQuery({ name: 'name', required: true })
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'School Found!', type: School })
-  // @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard(Role.Admin))
   async findByName(@Query() name: string) {
     await this.schoolService.findByName(name);
   }
