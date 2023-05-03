@@ -118,7 +118,7 @@ export class StudentsController {
     return this.studentsService.update(id, updateStudentDto, user, file);
   }
 
-  @Patch('update/isActive/:id')
+  @Patch('update/isActive')
   @ApiBearerAuth()
   @ApiBody({ type: UpdateStatusDto })
   @ApiParam({ name: 'id', description: 'Student ID' })
@@ -129,7 +129,7 @@ export class StudentsController {
   })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async isActive(
-    @Param('id') id: string,
+    @Query('id') id: string,
     @Users() user,
     @Body() body: UpdateStatusDto,
   ) {

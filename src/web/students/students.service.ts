@@ -154,7 +154,12 @@ export class StudentsService {
       };
     });
     // return responseMap(studentUrl, SUCCESS_MSGS.FIND_ALL_STUDENTS);
-    return { studentUrl, message: SUCCESS_MSGS.FIND_ALL_STUDENTS };
+    return {
+      studentUrl,
+      pageNumber,
+      limit,
+      message: SUCCESS_MSGS.FIND_ALL_STUDENTS,
+    };
     // } catch (err) {
     //   return err;
     // }

@@ -55,7 +55,7 @@ export class School {
     example: 'Ahmedabad',
     type: String,
   })
-  @Prop({ required: true })
+  @Prop({ required: true, index: true })
   city: string;
 
   @ApiProperty({
@@ -99,5 +99,5 @@ export class School {
 }
 
 const SchoolSchema = SchemaFactory.createForClass(School);
-SchoolSchema.index({ name: 'text' });
+SchoolSchema.index({ name: 'text', city: 'text' });
 export { SchoolSchema };

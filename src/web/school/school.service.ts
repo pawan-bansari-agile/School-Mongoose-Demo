@@ -202,6 +202,7 @@ export class SchoolService {
     // try {
     const fieldName = query.fieldName || '';
     const fieldValue = query.fieldValue || '';
+    const fieldValueRegex = new RegExp(fieldValue, 'i');
     const pageNumber = query.pageNumber || 1;
     const limit = query.limit || 10;
     const keyword = query.keyword || '';
@@ -219,7 +220,7 @@ export class SchoolService {
     }
 
     if (fieldName && fieldValue) {
-      pipeline.push({ $match: { [fieldName]: fieldValue } });
+      pipeline.push({ $match: { [fieldName]: { $regex: fieldValueRegex } } });
     }
     if (sortBy || sortOrder) {
       if (sortBy && sortOrder) {
@@ -252,7 +253,12 @@ export class SchoolService {
     });
 
     // return responseMap(schoolsUrl, SUCCESS_MSGS.FIND_ALL_SCHOOLS);
-    return { schoolsUrl, message: SUCCESS_MSGS.FIND_ALL_SCHOOLS };
+    return {
+      schoolsUrl,
+      pageNumber,
+      limit,
+      message: SUCCESS_MSGS.FIND_ALL_SCHOOLS,
+    };
     // } catch (err) {
     //   return err;
     // }
