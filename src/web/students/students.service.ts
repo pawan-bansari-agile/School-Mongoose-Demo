@@ -100,15 +100,47 @@ export class StudentsService {
         );
       }
     }
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'schools',
+          localField: 'school',
+          foreignField: '_id',
+          as: 'school',
+        },
+      },
+      {
+        $unwind: '$school',
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          address: 1,
+          parentNumber: 1,
+          'school.name': 1,
+          std: 1,
+          photo: 1,
+          dob: 1,
+          status: 1,
+          deleted: 1,
+        },
+      },
+    );
     if (fieldName && fieldValue) {
-      if (fieldName === 'school') {
-        try {
-          const schoolId = new mongoose.Types.ObjectId(fieldValue);
-          pipeline.push({ $match: { [fieldName]: schoolId } });
-        } catch (err) {
-          console.error('Invalid ObjectId for school field');
+      if (user.role == Role.Admin) {
+        if (fieldName === 'school.name') {
+          try {
+            pipeline.push({
+              $match: { [fieldName]: { $regex: fieldValue, $options: 'i' } },
+            });
+          } catch (err) {
+            console.error('Invalid ObjectId for school field');
+          }
+        } else if (fieldName === 'std') {
+          pipeline.push({ $match: { [fieldName]: +fieldValue } });
         }
-      } else if (fieldName === 'std') {
+      } else if (user.role == Role.School && fieldName === 'std') {
         pipeline.push({ $match: { [fieldName]: +fieldValue } });
       }
     }
@@ -122,11 +154,7 @@ export class StudentsService {
         pipeline.push({ $sort: { std: +sortOrder } });
       }
     }
-    pipeline.push(
-      { $skip: (pageNumber - 1) * limit },
-      { $limit: +limit },
-      { $project: { password: 0 } },
-    );
+    pipeline.push({ $skip: (pageNumber - 1) * limit }, { $limit: +limit });
 
     const students = await this.studModel.aggregate(pipeline);
     if (!students) {
@@ -140,6 +168,7 @@ export class StudentsService {
         photo: url,
       };
     });
+
     return {
       studentUrl,
       pageNumber,
