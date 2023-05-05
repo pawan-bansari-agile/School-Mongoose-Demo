@@ -328,4 +328,28 @@ export class SchoolService {
     );
     return { message: SUCCESS_MSGS.SCHOOL_DELETED };
   }
+
+  async getCities() {
+    const cities = await this.schoolModel.aggregate([
+      { $match: { deleted: false } },
+      { $project: { city: 1, _id: 0 } },
+    ]);
+    return cities;
+  }
+
+  async getAllSchools() {
+    const schools = this.schoolModel.aggregate([
+      {
+        $match: { deleted: false },
+      },
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+        },
+      },
+    ]);
+
+    return schools;
+  }
 }

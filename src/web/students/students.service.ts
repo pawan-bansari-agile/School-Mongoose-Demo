@@ -382,4 +382,18 @@ export class StudentsService {
 
     return totalStudentCount;
   }
+
+  async getAllStds() {
+    const standards = await this.studModel.aggregate([
+      { $match: { deleted: false } },
+      {
+        $project: {
+          _id: 0,
+          std: 1,
+        },
+      },
+    ]);
+
+    return standards;
+  }
 }

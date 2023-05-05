@@ -171,4 +171,14 @@ export class StudentsController {
   async totalStudentCount() {
     return this.studentsService.totalStudentCount();
   }
+
+  @Get('getAllStds')
+  @ApiOkResponse({
+    description: 'Will return a list of all the available standards!',
+  })
+  @ApiBearerAuth()
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  async getAllStds() {
+    return this.studentsService.getAllStds();
+  }
 }

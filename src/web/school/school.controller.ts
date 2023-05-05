@@ -204,4 +204,24 @@ export class SchoolController {
   async remove(@Users() user: UserDocument, @Query('id') id: string) {
     return this.schoolService.remove(user, id);
   }
+
+  @Get('findAll/cities')
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Will return a list of all the cities!',
+  })
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  async availableCities() {
+    return this.schoolService.getCities();
+  }
+
+  @Get('getAll/schools')
+  @ApiOkResponse({
+    description: 'Will return a list of all the school names!',
+  })
+  @ApiBearerAuth()
+  @UseGuards(RoleGuard([Role.Admin, Role.School]))
+  async getAllSchools() {
+    return this.schoolService.getAllSchools();
+  }
 }
