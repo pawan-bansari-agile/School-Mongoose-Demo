@@ -36,6 +36,7 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -49,6 +50,7 @@ export class SchoolController {
   constructor(private readonly schoolService: SchoolService) {}
 
   @Post('create')
+  @ApiOperation({ summary: 'Create a new school' })
   @ApiCreatedResponse({
     description: 'Created a school onject!',
     type: School,
@@ -69,6 +71,7 @@ export class SchoolController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Authenticate a user' })
   @ApiOkResponse({
     description: 'School logged in successfully!',
     type: School,
@@ -87,6 +90,7 @@ export class SchoolController {
   }
 
   @Post('forget')
+  @ApiOperation({ summary: 'Initiate a password reset' })
   @ApiBody({ type: ForgetSchoolPassDto })
   @ApiOkResponse({
     description: 'Mail sent!',
@@ -101,6 +105,7 @@ export class SchoolController {
   }
 
   @Post('reset')
+  @ApiOperation({ summary: 'Reset user password' })
   @ApiOkResponse({
     description: 'Password changed succesfully!',
   })
@@ -121,6 +126,7 @@ export class SchoolController {
   }
 
   @Get('findAll')
+  @ApiOperation({ summary: 'Get all schools' })
   @ApiOkResponse({
     description: 'Found all schools!',
     type: [School],
@@ -142,6 +148,7 @@ export class SchoolController {
   }
 
   @Get('findone/:id')
+  @ApiOperation({ summary: 'Get one school' })
   @ApiOkResponse({
     description: 'Found one school!',
     type: School,
@@ -157,6 +164,7 @@ export class SchoolController {
   }
 
   @Get('findByName')
+  @ApiOperation({ summary: 'Get one school by name' })
   @ApiBadRequestResponse({
     description: 'School not found!',
   })
@@ -169,6 +177,7 @@ export class SchoolController {
   }
 
   @Patch('update')
+  @ApiOperation({ summary: 'Get school and update' })
   @ApiOkResponse({
     description: 'School updated!',
     type: School,
@@ -192,6 +201,7 @@ export class SchoolController {
   }
 
   @Delete('delete')
+  @ApiOperation({ summary: 'Get school and soft delete' })
   @ApiCreatedResponse({
     description: 'School deleted!',
   })
@@ -206,6 +216,7 @@ export class SchoolController {
   }
 
   @Get('findAll/cities')
+  @ApiOperation({ summary: 'Get all available cities!' })
   @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Will return a list of all the cities!',
@@ -216,6 +227,7 @@ export class SchoolController {
   }
 
   @Get('getAll/schools')
+  @ApiOperation({ summary: 'Get all school names' })
   @ApiOkResponse({
     description: 'Will return a list of all the school names!',
   })

@@ -1,5 +1,5 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { ApiProperty } from '@nestjs/swagger';
+import { OmitType, PartialType } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -86,18 +86,31 @@ export class CreateSchoolDto {
   country: string;
 }
 
-export class UpdateSchoolDto extends PartialType(CreateSchoolDto) {}
+@ApiExtraModels()
+export class UpdateSchoolDto extends PartialType(CreateSchoolDto) {
+  constructor(partial: Partial<CreateSchoolDto>) {
+    super(partial);
+  }
+}
 
-export class LoginSchoolDto extends PartialType(CreateSchoolDto) {
-  @ApiProperty({
-    description: 'The email of the School!',
-    example: 'test@yopmail.com',
-    type: String,
-  })
-  @IsEmail()
-  @IsNotEmpty()
-  @Matches(emailRegex, { message: 'Invalid Email!' })
-  email: string;
+export class LoginSchoolDto extends OmitType(CreateSchoolDto, [
+  'name',
+  'address',
+  'photo',
+  'zipCode',
+  'city',
+  'state',
+  'country',
+]) {
+  // @ApiProperty({
+  //   description: 'The email of the School!',
+  //   example: 'test@yopmail.com',
+  //   type: String,
+  // })
+  // @IsEmail()
+  // @IsNotEmpty()
+  // @Matches(emailRegex, { message: 'Invalid Email!' })
+  // email: string;
 
   @ApiProperty({
     description: 'Password is required only while logging in!',

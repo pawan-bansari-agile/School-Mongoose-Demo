@@ -1,5 +1,5 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { ApiProperty } from '@nestjs/swagger';
+// import { PartialType } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -60,6 +60,7 @@ export class CreateStudentDto {
   dob: Date;
 }
 
+@ApiExtraModels()
 export class UpdateStudentDto extends PartialType(CreateStudentDto) {}
 
 export class UpdateStatusDto {

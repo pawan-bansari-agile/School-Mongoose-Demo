@@ -31,6 +31,7 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
@@ -45,6 +46,7 @@ export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
   @Post('create')
+  @ApiOperation({ summary: 'Create a new student' })
   @ApiBearerAuth()
   @ApiBody({ type: CreateStudentDto })
   @ApiQuery({ name: 'id', required: false })
@@ -66,6 +68,7 @@ export class StudentsController {
   }
 
   @Get('findAll')
+  @ApiOperation({ summary: 'Get all students' })
   @ApiBearerAuth()
   @ApiQuery({ name: 'fieldName', required: false })
   @ApiQuery({ name: 'fieldValue', required: false })
@@ -83,9 +86,16 @@ export class StudentsController {
   }
 
   @Get('findOne')
+  @ApiOperation({ summary: 'Get one student' })
   @ApiBearerAuth()
-  @ApiQuery({ name: 'id', required: true })
-  @ApiQuery({ name: 'name', required: true })
+  @ApiQuery({
+    name: 'id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'name',
+    required: true,
+  })
   @ApiOkResponse({ description: 'Found', type: Student })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -96,6 +106,7 @@ export class StudentsController {
   }
 
   @Patch('update')
+  @ApiOperation({ summary: 'Get one student and update' })
   @ApiBearerAuth()
   @ApiBody({ type: UpdateStudentDto })
   @ApiParam({ name: 'id', required: true })
@@ -116,6 +127,7 @@ export class StudentsController {
   }
 
   @Patch('update/isActive')
+  @ApiOperation({ summary: 'Get one student and update the status' })
   @ApiBearerAuth()
   @ApiBody({ type: UpdateStatusDto })
   @ApiParam({ name: 'id', description: 'Student ID' })
@@ -134,12 +146,12 @@ export class StudentsController {
   }
 
   @Delete('delete')
+  @ApiOperation({ summary: 'Get one student and soft delete' })
   @ApiBearerAuth()
   @ApiParam({ name: 'id', description: 'Student ID' })
   @ApiResponse({
     status: 200,
-    description: 'Returns deleted student',
-    type: Student,
+    description: 'Returns success message of deletion',
   })
   @UseGuards(RoleGuard([Role.School, Role.Admin]))
   async remove(@Users() user, @Query() id: string) {
@@ -147,6 +159,7 @@ export class StudentsController {
   }
 
   @Get('totalCount')
+  @ApiOperation({ summary: 'get total count of students' })
   @ApiBearerAuth()
   @ApiQuery({ name: 'std', description: 'to get standard wise count' })
   @ApiQuery({ name: 'school', description: 'to get school wise count' })
@@ -161,6 +174,7 @@ export class StudentsController {
   }
 
   @Get('totalStudentCount')
+  @ApiOperation({ summary: 'get total student counts registered on the site' })
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
@@ -173,6 +187,7 @@ export class StudentsController {
   }
 
   @Get('getAllStds')
+  @ApiOperation({ summary: 'Get all available standards of each school' })
   @ApiOkResponse({
     description: 'Will return a list of all the available standards!',
   })
