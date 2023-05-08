@@ -1,4 +1,3 @@
-// import { PartialType } from '@nestjs/swagger';
 import { ApiExtraModels, ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   IsBoolean,

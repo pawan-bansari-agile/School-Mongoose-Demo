@@ -102,16 +102,6 @@ export class LoginSchoolDto extends OmitType(CreateSchoolDto, [
   'state',
   'country',
 ]) {
-  // @ApiProperty({
-  //   description: 'The email of the School!',
-  //   example: 'test@yopmail.com',
-  //   type: String,
-  // })
-  // @IsEmail()
-  // @IsNotEmpty()
-  // @Matches(emailRegex, { message: 'Invalid Email!' })
-  // email: string;
-
   @ApiProperty({
     description: 'Password is required only while logging in!',
     example: 'test@123',
