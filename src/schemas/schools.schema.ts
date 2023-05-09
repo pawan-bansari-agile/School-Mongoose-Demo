@@ -94,7 +94,7 @@ export class School {
   @Prop({ default: null })
   standards: number[];
 
-  @Prop()
+  @Prop({ default: 0 })
   count: number;
 }
 

@@ -75,7 +75,7 @@ export class StudentsService {
     const keyword = query.keyword || '';
     const regex = new RegExp(keyword, 'i');
     const sortBy = query.sortBy || '';
-    const sortOrder = query.sortOrder || '';
+    const sortOrder = query.sortOrder || -1;
     const pipeline = [];
     if (user.role == Role.Admin) {
       if (keyword) {
@@ -149,7 +149,7 @@ export class StudentsService {
       if (sortBy && sortOrder) {
         pipeline.push({ $sort: { [sortBy]: +sortOrder } });
       } else if (sortBy) {
-        pipeline.push({ $sort: { [sortBy]: 1 } });
+        pipeline.push({ $sort: { [sortBy]: -1 } });
       } else if (sortOrder) {
         pipeline.push({ $sort: { std: +sortOrder } });
       }
