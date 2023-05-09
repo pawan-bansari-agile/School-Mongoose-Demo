@@ -173,7 +173,7 @@ export class SchoolService {
     const keyword = query.keyword || '';
     const regex = new RegExp(keyword, 'i');
     const sortBy = query.sortBy || '';
-    const sortOrder = query.sortOrder || '';
+    const sortOrder = query.sortOrder || -1;
     const pipeline = [];
     if (keyword) {
       pipeline.push(
@@ -191,9 +191,9 @@ export class SchoolService {
       if (sortBy && sortOrder) {
         pipeline.push({ $sort: { [sortBy]: +sortOrder } });
       } else if (sortBy) {
-        pipeline.push({ $sort: { [sortBy]: 1 } });
+        pipeline.push({ $sort: { [sortBy]: -1 } });
       } else if (sortOrder) {
-        pipeline.push({ $sort: { name: +sortOrder } });
+        pipeline.push({ $sort: { _id: +sortOrder } });
       }
     }
     pipeline.push(
