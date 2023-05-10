@@ -1,5 +1,9 @@
-import { OmitType, PartialType } from '@nestjs/swagger';
-import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
+import {
+  OmitType,
+  PartialType,
+  ApiExtraModels,
+  ApiProperty,
+} from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,

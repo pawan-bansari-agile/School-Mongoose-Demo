@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
-import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
+import Role, { ERR_MSGS, SUCCESS_MSGS, initialUser } from 'src/utils/consts';
 import { hashPassword, JwtHelper, verifyPass } from 'src/utils/utils';
 import {
   CreateUserDto,
@@ -17,7 +17,6 @@ import {
   UpdateUserDto,
 } from '../../dto/create-user.dto';
 import * as crypto from 'crypto';
-import { initialUser } from 'src/utils/consts';
 // import { globalResponse, responseMap } from 'src/generics/genericResponse';
 
 @Injectable()

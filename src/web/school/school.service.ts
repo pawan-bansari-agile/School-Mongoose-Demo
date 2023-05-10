@@ -8,7 +8,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { School, SchoolDocument } from 'src/schemas/schools.schema';
 import Role, { ERR_MSGS, SUCCESS_MSGS } from 'src/utils/consts';
-import { hashPassword, JwtHelper, verifyPass } from 'src/utils/utils';
+import {
+  hashPassword,
+  JwtHelper,
+  verifyPass,
+  getFileUrl,
+} from 'src/utils/utils';
 import {
   CreateSchoolDto,
   ForgetSchoolPassDto,
@@ -19,7 +24,6 @@ import {
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 // import { globalResponse, responseMap } from 'src/generics/genericResponse';
-import { getFileUrl } from 'src/utils/utils';
 import { UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
