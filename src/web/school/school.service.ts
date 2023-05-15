@@ -179,6 +179,8 @@ export class SchoolService {
     const sortBy = query.sortBy || '';
     const sortOrder = query.sortOrder || -1;
     const pipeline = [];
+    const skip = (pageNumber - 1) * limit;
+
     if (keyword) {
       pipeline.push(
         { $match: { name: { $regex: regex } } },
@@ -200,17 +202,39 @@ export class SchoolService {
         pipeline.push({ $sort: { _id: +sortOrder } });
       }
     }
-    pipeline.push(
-      { $skip: (pageNumber - 1) * limit },
-      { $limit: +limit },
-      { $project: { password: 0 } },
-    );
-    const schools = await this.schoolModel.aggregate(pipeline);
+    // pipeline.push(
+    //   { $skip: (pageNumber - 1) * limit },
+    //   { $limit: +limit },
+    //   { $project: { password: 0 } },
+    // );
 
-    if (!schools) {
+    pipeline.push(
+      {
+        $facet: {
+          paginatedResults: [{ $skip: skip }, { $limit: +limit }],
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+      {
+        $project: {
+          results: '$paginatedResults',
+          totalCount: {
+            $arrayElemAt: ['$totalCount.total', 0],
+          },
+        },
+      },
+    );
+
+    const [{ results, totalCount }] = await this.schoolModel.aggregate(
+      pipeline,
+    );
+    console.log('schools', results);
+    console.log('totalCount', totalCount);
+
+    if (!results) {
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);
     }
-    const schoolsUrl = schools.map((item) => {
+    const schoolsUrl = results.map((item) => {
       const filename = item.photo;
       const url = filename ? getFileUrl(item.photo, 'SCHOOL_IMAGES') : null;
       return {
@@ -219,10 +243,14 @@ export class SchoolService {
       };
     });
 
+    const totalPages = Math.ceil(totalCount / limit);
+
     return {
       schoolsUrl,
       pageNumber,
       limit,
+      totalCount,
+      totalPages,
       message: SUCCESS_MSGS.FIND_ALL_SCHOOLS,
     };
   }

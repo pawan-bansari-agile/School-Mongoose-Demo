@@ -76,6 +76,7 @@ export class StudentsService {
     const regex = new RegExp(keyword, 'i');
     const sortBy = query.sortBy || '';
     const sortOrder = query.sortOrder || -1;
+    const skip = (pageNumber - 1) * limit;
     const pipeline = [];
     if (user.role == Role.Admin) {
       if (keyword) {
@@ -154,13 +155,29 @@ export class StudentsService {
         pipeline.push({ $sort: { std: +sortOrder } });
       }
     }
-    pipeline.push({ $skip: (pageNumber - 1) * limit }, { $limit: +limit });
+    // pipeline.push({ $skip: (pageNumber - 1) * limit }, { $limit: +limit });
+    pipeline.push(
+      {
+        $facet: {
+          paginatedResults: [{ $skip: skip }, { $limit: +limit }],
+          totalCount: [{ $count: 'total' }],
+        },
+      },
+      {
+        $project: {
+          results: '$paginatedResults',
+          totalCount: {
+            $arrayElemAt: ['$totalCount.total', 0],
+          },
+        },
+      },
+    );
 
-    const students = await this.studModel.aggregate(pipeline);
-    if (!students) {
+    const [{ results, totalCount }] = await this.studModel.aggregate(pipeline);
+    if (!results) {
       throw new BadRequestException(ERR_MSGS.STUDENT_NOT_FOUND);
     }
-    const studentUrl = students.map((item) => {
+    const studentUrl = results.map((item) => {
       const filename = item.photo;
       const url = filename ? getFileUrl(item.photo, 'STUDENT_IMAGES') : null;
       return {
@@ -169,10 +186,14 @@ export class StudentsService {
       };
     });
 
+    const totalPages = Math.ceil(totalCount / limit);
+
     return {
       studentUrl,
       pageNumber,
       limit,
+      totalCount,
+      totalPages,
       message: SUCCESS_MSGS.FIND_ALL_STUDENTS,
     };
   }
