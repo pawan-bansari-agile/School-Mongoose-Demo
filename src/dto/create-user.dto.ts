@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -13,7 +14,7 @@ import Role, { emailRegex } from 'src/utils/consts';
 
 export class CreateUserDto {
   @ApiProperty({
-    description: 'The user name of the school!',
+    description: 'The name of the user!',
     example: 'Test',
   })
   @IsNotEmpty()
@@ -34,6 +35,7 @@ export class CreateUserDto {
     example: 'Admin/Reader/School',
   })
   @IsOptional()
+  @IsIn(Object.values(Role))
   role: Role;
 }
 

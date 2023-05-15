@@ -16,6 +16,7 @@ async function bootstrap() {
     .setTitle('School Management')
     .setDescription("School API's description")
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

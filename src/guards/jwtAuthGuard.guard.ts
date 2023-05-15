@@ -1,4 +1,8 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ExtractJwt } from 'passport-jwt';
@@ -12,6 +16,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+
+    if (!token) {
+      throw new UnauthorizedException('Token not provided');
+    }
 
     const decoded = this.jwtService.decode(token);
 
