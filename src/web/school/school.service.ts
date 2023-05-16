@@ -202,11 +202,6 @@ export class SchoolService {
         pipeline.push({ $sort: { _id: +sortOrder } });
       }
     }
-    // pipeline.push(
-    //   { $skip: (pageNumber - 1) * limit },
-    //   { $limit: +limit },
-    //   { $project: { password: 0 } },
-    // );
 
     pipeline.push(
       {
@@ -228,8 +223,6 @@ export class SchoolService {
     const [{ results, totalCount }] = await this.schoolModel.aggregate(
       pipeline,
     );
-    console.log('schools', results);
-    console.log('totalCount', totalCount);
 
     if (!results) {
       throw new BadRequestException(ERR_MSGS.SCHOOL_NOT_FOUND);

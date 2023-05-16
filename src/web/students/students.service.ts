@@ -155,7 +155,7 @@ export class StudentsService {
         pipeline.push({ $sort: { std: +sortOrder } });
       }
     }
-    // pipeline.push({ $skip: (pageNumber - 1) * limit }, { $limit: +limit });
+
     pipeline.push(
       {
         $facet: {
